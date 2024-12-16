@@ -2,7 +2,7 @@
   "name": "ar.js-core",
   "version": "0.1.0",
   "description": "core library of AR.js",
-  "main": "dist/ar-core.js",
+  "main": "dist/ARjs-core.js",
   "scripts": {
     "format-check": "prettier --check .",
     "format": "prettier --write .",
