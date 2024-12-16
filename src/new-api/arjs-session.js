@@ -1,4 +1,4 @@
-import * as THREE from "three";
+//import * as THREE from "three";
 import { setParameters } from "../functions/utils";
 import Source from "../arjs-source";
 import Context from "../arjs-context"; // TODO context build-dependent
@@ -26,9 +26,9 @@ export default class Session {
     setParameters(parameters, this);
 
     // sanity check
-    console.assert(this.parameters.renderer instanceof THREE.WebGLRenderer);
+    /*console.assert(this.parameters.renderer instanceof THREE.WebGLRenderer);
     console.assert(this.parameters.camera instanceof THREE.Camera);
-    console.assert(this.parameters.scene instanceof THREE.Scene);
+    console.assert(this.parameters.scene instanceof THREE.Scene);*/
 
     // backward emulation
     Object.defineProperty(this, "renderer", {
