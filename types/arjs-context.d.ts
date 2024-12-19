@@ -1,5 +1,5 @@
 export default class Context {
-    static baseUrl: string;
+    static baseURL: string;
     static REVISION: string;
     constructor(parameters: any);
     className: string;
@@ -22,6 +22,7 @@ export default class Context {
     initialized: boolean;
     _arMarkersControls: any[];
     _artoolkitProjectionAxisTransformMatrix: any;
+    addEventListener(name: any, callback: any): void;
     dispatchEvent(event: any): void;
     /**
      * Init the artoolkit backend. This is one of the first steps in your app.
