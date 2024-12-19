@@ -21,7 +21,7 @@ export default class Context {
 
       // url of the camera parameters
       cameraParametersUrl:
-        ArToolkitContext.baseURL + "../../data/data/camera_para.dat",
+        Context.baseURL + "../../data/data/camera_para.dat",
 
       // tune the maximum rate of pose detection in the source image
       maxDetectionRate: 60,
@@ -71,8 +71,15 @@ export default class Context {
     //////////////////////////////////////////////////////////////////////////////
     setParameters(parameters, this);
   }
-  static baseUrl = "https://raw.githack.com/AR-js-org/AR.js/master/";
+  static baseURL = "https://raw.githack.com/AR-js-org/AR.js/master/";
   static REVISION = "3.4.3-threejs-0.2.1";
+
+  addEventListener(name, callback) {
+    if (!this.listeners[name]) {
+      this.listeners[name] = [];
+    }
+    this.listeners[name].push(callback);
+  };
 
   dispatchEvent(event) {
     const listeners = this.listeners[event.name];

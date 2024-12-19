@@ -5,7 +5,7 @@ module.exports = {
   output: {
     path: path.resolve("dist"),
     filename: "ARjs-core.js",
-    library: "ARjs-core",
+    library: "ARjsCore",
     libraryTarget: "umd",
     // @see: https://github.com/webpack/webpack/issues/3929
     libraryExport: "default",
@@ -29,6 +29,15 @@ module.exports = {
             },
           },
         ],
+      },
+      {
+        test: /\.worker\.js$/,
+        use: {
+          loader: "worker-loader",
+          options: {
+            inline: "no-fallback",
+          },
+        },
       },
     ],
   },
