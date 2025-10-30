@@ -170,17 +170,18 @@ export const defaultProfilePlugin = {
     let operations = 0;
     const maxIterations = 10000; // Safety limit to prevent infinite loops
 
+    // Pre-allocate array to avoid GC overhead
+    const arr = [1, 2, 3, 4, 5];
+
     // Simple computational loop
     while (
       performance.now() - startTime < targetDuration &&
       operations < maxIterations
     ) {
-      // Mix of operations: math, array manipulation, object creation
-      const arr = [1, 2, 3, 4, 5];
+      // Mix of operations: array reduction, math calculations
       const sum = arr.reduce((a, b) => a + b, 0);
       const sqrt = Math.sqrt(sum * sum + 100);
-      const result = { value: sqrt, time: Date.now() };
-      operations += result.value > 0 ? 1 : 0;
+      operations += sqrt > 0 ? 1 : 0;
     }
 
     const elapsed = performance.now() - startTime;
@@ -311,23 +312,6 @@ export const defaultProfilePlugin = {
       sourceWidth: defaults.sourceWidth,
       sourceHeight: defaults.sourceHeight,
     };
-  },
-
-  /**
-   * Check if the current device is a mobile device
-   * @private
-   */
-  _isMobileDevice() {
-    const userAgent = navigator.userAgent;
-    return !!(
-      userAgent.match(/Android/i) ||
-      userAgent.match(/webOS/i) ||
-      userAgent.match(/iPhone/i) ||
-      userAgent.match(/iPad/i) ||
-      userAgent.match(/iPod/i) ||
-      userAgent.match(/BlackBerry/i) ||
-      userAgent.match(/Windows Phone/i)
-    );
   },
 
   /**
