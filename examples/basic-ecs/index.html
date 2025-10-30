@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR.js ECS - Basic Example</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+      }
+
+      #info {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        z-index: 1000;
+        max-width: 300px;
+      }
+
+      #info h2 {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+      }
+
+      #info p {
+        margin: 5px 0;
+        font-size: 12px;
+      }
+
+      #info .status {
+        font-weight: bold;
+        color: #4caf50;
+      }
+
+      #info .error {
+        color: #f44336;
+      }
+
+      button {
+        margin: 5px 5px 0 0;
+        padding: 8px 15px;
+        background: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      button:hover {
+        background: #1976d2;
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">
+      <h2>AR.js ECS Basic Example</h2>
+      <p>Status: <span id="status" class="status">Initializing...</span></p>
+      <p>Source Type: <span id="sourceType">-</span></p>
+      <p>Profile: <span id="profile">-</span></p>
+      <p>Frame Count: <span id="frameCount">0</span></p>
+      <div>
+        <button id="startBtn" disabled>Start Capture</button>
+        <button id="stopBtn" disabled>Stop Capture</button>
+      </div>
+    </div>
+
+    <script type="module">
+      // Import ECS core
+      import { Engine } from "../../src/core/engine.js";
+      import { CaptureSystem } from "../../src/systems/capture-system.js";
+      import { ResourceType } from "../../src/core/components.js";
+
+      // Import plugins
+      import { WebcamPlugin } from "../../plugins/source/webcam.js";
+      import { VideoPlugin } from "../../plugins/source/video.js";
+      import { ImagePlugin } from "../../plugins/source/image.js";
+      import { DefaultProfilePlugin } from "../../plugins/profile/default-profile.js";
+
+      // Create engine
+      const engine = new Engine();
+
+      // Register plugins
+      engine.plugins.register("source:webcam", new WebcamPlugin());
+      engine.plugins.register("source:video", new VideoPlugin());
+      engine.plugins.register("source:image", new ImagePlugin());
+      engine.plugins.register("profile:default", new DefaultProfilePlugin());
+
+      // Enable plugins
+      engine.plugins.enable("source:webcam");
+      engine.plugins.enable("source:video");
+      engine.plugins.enable("source:image");
+      engine.plugins.enable("profile:default");
+
+      // Get profile settings
+      const profile = engine.ecs.getResource(ResourceType.DEVICE_PROFILE);
+
+      // Create capture system with webcam
+      const captureSystem = new CaptureSystem({
+        sourceType: "webcam",
+        sourceWidth: profile ? profile.sourceWidth : 640,
+        sourceHeight: profile ? profile.sourceHeight : 480,
+        displayWidth: profile ? profile.displayWidth : 640,
+        displayHeight: profile ? profile.displayHeight : 480,
+      });
+
+      // Frame counter system
+      let frameCount = 0;
+      function frameCounterSystem(engine, deltaTime) {
+        frameCount++;
+        if (frameCount % 60 === 0) {
+          document.getElementById("frameCount").textContent = frameCount;
+        }
+      }
+
+      // Add systems
+      engine.addSystem(frameCounterSystem);
+
+      // UI elements
+      const statusEl = document.getElementById("status");
+      const sourceTypeEl = document.getElementById("sourceType");
+      const profileEl = document.getElementById("profile");
+      const startBtn = document.getElementById("startBtn");
+      const stopBtn = document.getElementById("stopBtn");
+
+      // Event listeners
+      engine.events.on("capture:initializing", (data) => {
+        statusEl.textContent = "Initializing capture...";
+        statusEl.className = "status";
+        sourceTypeEl.textContent = data.sourceType;
+      });
+
+      engine.events.on("capture:ready", (data) => {
+        statusEl.textContent = "Ready";
+        statusEl.className = "status";
+        stopBtn.disabled = false;
+      });
+
+      engine.events.on("capture:error", (data) => {
+        statusEl.textContent = `Error: ${data.error}`;
+        statusEl.className = "error";
+      });
+
+      engine.events.on("profile:applied", (data) => {
+        profileEl.textContent = data.profile.profileLabel;
+      });
+
+      // Button handlers
+      startBtn.addEventListener("click", async () => {
+        startBtn.disabled = true;
+        await captureSystem.init(engine);
+        engine.start();
+      });
+
+      stopBtn.addEventListener("click", () => {
+        engine.stop();
+        captureSystem.shutdown(engine);
+        statusEl.textContent = "Stopped";
+        statusEl.className = "status";
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+      });
+
+      // Initialize
+      console.log("AR.js ECS Engine initialized");
+      console.log("Plugins registered:", engine.plugins.list());
+      console.log("Profile:", profile);
+
+      // Auto-start
+      startBtn.disabled = false;
+      setTimeout(() => {
+        startBtn.click();
+      }, 500);
+    </script>
+  </body>
+</html>
