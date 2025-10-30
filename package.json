@@ -36,7 +36,6 @@
     "@babel/runtime": "^7.26.0",
     "babel-loader": "^9.2.1",
     "gl-matrix": "^3.4.3",
-    "jsdom": "^27.0.1",
     "prettier": "^3.4.2",
     "typescript": "^5.7.2",
     "webpack": "^5.97.1",
