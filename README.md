@@ -80,6 +80,10 @@ npm run build:vite
 npm run serve:vite
 ```
 
+Examples:
+- Minimal Example: examples/minimal/index.html (Vite: http://localhost:5173/examples/minimal/index.html)
+- Image Source Example: examples/basic-ecs/image-example.html (Vite: http://localhost:5173/examples/basic-ecs/image-example.html)
+
 If the camera doesn’t start automatically, click or tap once to allow autoplay. For Safari or stricter policies, consider enabling HTTPS in `vite.config.js` (see comments in the file).
 
 ## Legacy API
