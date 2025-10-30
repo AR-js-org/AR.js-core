@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { EventBus } from "../src/core/event-bus.js";
 import { imagePlugin } from "../plugins/source/image.js";
 import { videoPlugin } from "../plugins/source/video.js";
@@ -128,6 +128,10 @@ describe("Capture plugins smoke tests (with minimal mocks)", () => {
     context = { eventBus };
   });
 
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   it("imagePlugin.capture returns element with type=image and appends to body", async () => {
     await imagePlugin.init(context);
     const frame = await imagePlugin.capture(
@@ -186,12 +190,13 @@ describe("Capture plugins smoke tests (with minimal mocks)", () => {
       getVideoTracks: () => [track],
     };
 
-    globalThis.navigator = {
+    // Stub navigator con enumerateDevices + getUserMedia
+    vi.stubGlobal("navigator", {
       mediaDevices: {
-        getUserMedia: vi.fn(async () => stream),
         enumerateDevices: vi.fn(async () => []),
+        getUserMedia: vi.fn(async () => stream),
       },
-    };
+    });
 
     await webcamPlugin.init(context);
     const frame = await webcamPlugin.capture(

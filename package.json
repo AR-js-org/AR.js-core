@@ -1,8 +1,16 @@
 {
   "name": "ar.js-core",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "core library of AR.js",
   "main": "dist/arjs-core.js",
+  "module": "dist/arjs-core.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/arjs-core.es.js",
+      "require": "./dist/arjs-core.js",
+      "default": "./dist/arjs-core.es.js"
+    }
+  },
   "scripts": {
     "format-check": "prettier --check .",
     "format": "prettier --write .",
@@ -30,23 +38,23 @@
   "license": "MIT",
   "dependencies": {
     "@ar-js-org/artoolkit5-js": "^0.3.1",
-    "@babel/core": "^7.26.0",
-    "@babel/plugin-transform-runtime": "^7.25.9",
-    "@babel/preset-env": "^7.26.0",
-    "@babel/runtime": "^7.26.0",
-    "babel-loader": "^9.2.1",
-    "gl-matrix": "^3.4.3",
+    "@babel/core": "^7.28.5",
+    "@babel/plugin-transform-runtime": "^7.28.5",
+    "@babel/preset-env": "^7.28.5",
+    "@babel/runtime": "^7.28.4",
+    "babel-loader": "^10.0.0",
+    "gl-matrix": "^3.4.4",
     "prettier": "^3.4.2",
-    "typescript": "^5.7.2",
-    "webpack": "^5.97.1",
-    "webpack-cli": "^5.1.4",
-    "webpack-dev-server": "^5.0.4"
+    "typescript": "^5.9.3",
+    "webpack": "^5.102.1",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^4.0.5",
     "@vitest/ui": "^4.0.5",
-    "rollup": "^4.24.0",
-    "vite": "^5.4.21",
+    "rollup": "^4.52.5",
+    "vite": "^7.1.12",
     "vitest": "^4.0.5"
   },
   "optionalDependencies": {
