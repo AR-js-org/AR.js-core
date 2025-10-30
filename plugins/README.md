@@ -23,8 +23,11 @@ Profile plugins manage performance and device configuration:
 ### Import Individual Plugins
 
 ```javascript
+// When working within the AR.js-core repository:
 import { webcamPlugin } from "./plugins/source/webcam.js";
 import { defaultProfilePlugin } from "./plugins/profile/default-policy.js";
+
+// Note: Adjust the path based on your file location relative to the plugins directory
 ```
 
 ### Import All Plugins
@@ -42,6 +45,7 @@ import {
 
 ```javascript
 import { Engine } from "ar.js-core";
+// Import plugin from relative path (adjust based on your file location)
 import { webcamPlugin } from "./plugins/source/webcam.js";
 
 const engine = new Engine();
@@ -94,7 +98,7 @@ async capture(config, context) {
     stream: mediaStream,  // MediaStream (for webcam) or null
     width: actualWidth,   // Actual media width
     height: actualHeight, // Actual media height
-    type: 'webcam',      // Source type
+    type: sourceType,     // Source type: 'webcam', 'video', or 'image'
   };
 }
 ```
