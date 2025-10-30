@@ -9,7 +9,10 @@
     "dev": "webpack serve --mode development --open",
     "dev:watch": "webpack --mode development --progress --color --watch",
     "build": "webpack --mode production",
-    "build-types": "tsc"
+    "build-types": "tsc",
+    "dev:vite": "vite",
+    "build:vite": "vite build",
+    "serve:vite": "vite preview"
   },
   "repository": {
     "type": "git",
@@ -35,5 +38,8 @@
     "webpack": "^5.97.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.0.4"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
   }
 }
