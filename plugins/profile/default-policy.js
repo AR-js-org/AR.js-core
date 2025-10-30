@@ -84,23 +84,17 @@ export const defaultProfilePlugin = {
     const win = typeof window !== "undefined" ? window : {};
     const scr = typeof screen !== "undefined" ? screen : {};
 
-    const userAgentHint =
-      typeof nav.userAgent === "string" ? nav.userAgent : "";
+    const userAgentHint = typeof nav.userAgent === "string" ? nav.userAgent : "";
     const cores = Math.max(1, Number(nav.hardwareConcurrency || 2));
     const memoryGB = Math.max(0.5, Number(nav.deviceMemory || 2));
     const webgl2 = !!win.WebGL2RenderingContext;
-    const wasmSIMD =
-      typeof WebAssembly === "object" &&
-      typeof WebAssembly.validate === "function";
-    const screenLongSide =
-      Math.max(Number(scr.width || 0), Number(scr.height || 0)) || 0;
+    const wasmSIMD = typeof WebAssembly === "object" && typeof WebAssembly.validate === "function";
+    const screenLongSide = Math.max(Number(scr.width || 0), Number(scr.height || 0)) || 0;
 
     let torch = false;
     let focusMode = "unknown";
     try {
-      const getSC = nav.mediaDevices?.getSupportedConstraints?.bind(
-        nav.mediaDevices,
-      );
+      const getSC = nav.mediaDevices?.getSupportedConstraints?.bind(nav.mediaDevices);
       const sc = getSC ? getSC() : {};
       torch = !!sc?.torch;
       focusMode = sc?.focusMode ? "supported" : "unknown";
@@ -123,10 +117,7 @@ export const defaultProfilePlugin = {
    * Very small CPU probe to approximate budget
    */
   async _microBenchmark(msTarget = 8) {
-    if (
-      typeof performance === "undefined" ||
-      typeof performance.now !== "function"
-    ) {
+    if (typeof performance === "undefined" || typeof performance.now !== "function") {
       return 0;
     }
     const start = performance.now();
@@ -171,35 +162,15 @@ export const defaultProfilePlugin = {
    */
   _pickTier(score) {
     if (score >= 85) {
-      return {
-        tier: QUALITY_TIERS.ULTRA,
-        capture: [1280, 720],
-        budget: 12,
-        complexity: "high",
-      };
+      return { tier: QUALITY_TIERS.ULTRA, capture: [1280, 720], budget: 12, complexity: "high" };
     }
     if (score >= 65) {
-      return {
-        tier: QUALITY_TIERS.HIGH,
-        capture: [960, 540],
-        budget: 10,
-        complexity: "high",
-      };
+      return { tier: QUALITY_TIERS.HIGH, capture: [960, 540], budget: 10, complexity: "high" };
     }
     if (score >= 45) {
-      return {
-        tier: QUALITY_TIERS.MEDIUM,
-        capture: [800, 450],
-        budget: 8,
-        complexity: "medium",
-      };
+      return { tier: QUALITY_TIERS.MEDIUM, capture: [800, 450], budget: 8, complexity: "medium" };
     }
-    return {
-      tier: QUALITY_TIERS.LOW,
-      capture: [640, 360],
-      budget: 6,
-      complexity: "low",
-    };
+    return { tier: QUALITY_TIERS.LOW, capture: [640, 360], budget: 6, complexity: "low" };
   },
 
   /**
