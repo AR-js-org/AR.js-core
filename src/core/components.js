@@ -78,7 +78,7 @@ export const SOURCE_TYPES = {
   IMAGE: "image",
 };
 
-// Device Profiles (legacy presets for backward compatibility)
+// Device Profiles (legacy presets; retained for backward compatibility)
 export const DEVICE_PROFILES = {
   DESKTOP_FAST: "desktop-fast",
   DESKTOP_NORMAL: "desktop-normal",
@@ -86,7 +86,7 @@ export const DEVICE_PROFILES = {
   PHONE_SLOW: "phone-slow",
 };
 
-// Quality Tiers (capability-based profiles)
+// New capability/quality-based tiers (preferred going forward)
 export const QUALITY_TIERS = {
   LOW: "low",
   MEDIUM: "medium",
