@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { EventBus } from "../src/core/event-bus.js";
-import { imagePlugin } from "../plugins/source/image.js";
-import { videoPlugin } from "../plugins/source/video.js";
-import { webcamPlugin } from "../plugins/source/webcam.js";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { EventBus } from '../src/core/event-bus.js';
+import { imagePlugin } from '../plugins/source/image.js';
+import { videoPlugin } from '../plugins/source/video.js';
+import { webcamPlugin } from '../plugins/source/webcam.js';
 
 function installGlobalDomStubs() {
   // Minimal CustomEvent + window.dispatchEvent
@@ -20,23 +20,23 @@ function installGlobalDomStubs() {
 
   function makeImageElement() {
     const el = {
-      id: "",
+      id: '',
       style: {},
       width: 0,
       height: 0,
       naturalWidth: 640,
       naturalHeight: 480,
       setAttribute: vi.fn((name, value) => {
-        if (name === "id") el.id = value;
+        if (name === 'id') el.id = value;
       }),
       onload: null,
       onerror: null,
-      _src: "",
+      _src: '',
       set src(val) {
         this._src = val;
         // Simulate successful load on next tick
         setTimeout(() => {
-          if (typeof this.onload === "function") this.onload();
+          if (typeof this.onload === 'function') this.onload();
         }, 0);
       },
       get src() {
@@ -49,12 +49,12 @@ function installGlobalDomStubs() {
   function makeVideoElement() {
     const listeners = new Map();
     const el = {
-      id: "",
+      id: '',
       style: {},
       videoWidth: 640,
       videoHeight: 480,
       setAttribute: vi.fn((name, value) => {
-        if (name === "id") el.id = value;
+        if (name === 'id') el.id = value;
       }),
       addEventListener: vi.fn((evt, cb) => {
         if (!listeners.has(evt)) listeners.set(evt, []);
@@ -78,24 +78,22 @@ function installGlobalDomStubs() {
         this._srcObject = val;
         // Fire loadedmetadata after srcObject is set (async)
         setTimeout(() => {
-          if (typeof this.onloadedmetadata === "function")
-            this.onloadedmetadata();
-          if (typeof this.onloadeddata === "function") this.onloadeddata();
+          if (typeof this.onloadedmetadata === 'function') this.onloadedmetadata();
+          if (typeof this.onloadeddata === 'function') this.onloadeddata();
         }, 0);
       },
       get srcObject() {
         return this._srcObject;
       },
-      _src: "",
+      _src: '',
       set src(val) {
         this._src = val;
         // Fire loadeddata/metadata for video file load (async)
         setTimeout(() => {
-          if (typeof this.onloadeddata === "function") this.onloadeddata();
-          if (typeof this.onloadedmetadata === "function")
-            this.onloadedmetadata();
-          el.dispatchEvent({ type: "loadeddata" });
-          el.dispatchEvent({ type: "loadedmetadata" });
+          if (typeof this.onloadeddata === 'function') this.onloadeddata();
+          if (typeof this.onloadedmetadata === 'function') this.onloadedmetadata();
+          el.dispatchEvent({ type: 'loadeddata' });
+          el.dispatchEvent({ type: 'loadedmetadata' });
         }, 0);
       },
       get src() {
@@ -108,8 +106,8 @@ function installGlobalDomStubs() {
   globalThis.document = {
     body,
     createElement: (tag) => {
-      if (tag === "img") return makeImageElement();
-      if (tag === "video") return makeVideoElement();
+      if (tag === 'img') return makeImageElement();
+      if (tag === 'video') return makeVideoElement();
       return { setAttribute: vi.fn(), style: {} };
     },
   };
@@ -117,7 +115,7 @@ function installGlobalDomStubs() {
   return { body };
 }
 
-describe("Capture plugins smoke tests (with minimal mocks)", () => {
+describe('Capture plugins smoke tests (with minimal mocks)', () => {
   let eventBus;
   let context;
   let dom;
@@ -132,11 +130,11 @@ describe("Capture plugins smoke tests (with minimal mocks)", () => {
     vi.unstubAllGlobals();
   });
 
-  it("imagePlugin.capture returns element with type=image and appends to body", async () => {
+  it('imagePlugin.capture returns element with type=image and appends to body', async () => {
     await imagePlugin.init(context);
     const frame = await imagePlugin.capture(
       {
-        sourceUrl: "https://example.com/fake.jpg",
+        sourceUrl: 'https://example.com/fake.jpg',
         sourceWidth: 320,
         sourceHeight: 240,
         displayWidth: 320,
@@ -146,18 +144,18 @@ describe("Capture plugins smoke tests (with minimal mocks)", () => {
     );
 
     expect(frame).toBeTruthy();
-    expect(frame.type).toBe("image");
+    expect(frame.type).toBe('image');
     expect(frame.element).toBeTruthy();
     // The plugin appends to body on load
     expect(dom.body.appendChild).toHaveBeenCalled();
   });
 
-  it("videoPlugin.capture returns element with type=video and appends to body", async () => {
+  it('videoPlugin.capture returns element with type=video and appends to body', async () => {
     await videoPlugin.init?.(context);
 
     const frame = await videoPlugin.capture?.(
       {
-        sourceUrl: "https://example.com/video.mp4",
+        sourceUrl: 'https://example.com/video.mp4',
         sourceWidth: 320,
         sourceHeight: 240,
         displayWidth: 320,
@@ -171,12 +169,12 @@ describe("Capture plugins smoke tests (with minimal mocks)", () => {
 
     // Some plugin versions may export without init/capture; guard to avoid false negatives
     expect(frame).toBeTruthy();
-    expect(frame.type).toBe("video");
+    expect(frame.type).toBe('video');
     expect(frame.element).toBeTruthy();
     expect(dom.body.appendChild).toHaveBeenCalled();
   });
 
-  it("webcamPlugin.capture returns element+stream with type=webcam and dispose stops tracks", async () => {
+  it('webcamPlugin.capture returns element+stream with type=webcam and dispose stops tracks', async () => {
     // Minimal MediaDevices mock
     const stopped = { value: false };
     const track = {
@@ -191,7 +189,7 @@ describe("Capture plugins smoke tests (with minimal mocks)", () => {
     };
 
     // Stub navigator con enumerateDevices + getUserMedia
-    vi.stubGlobal("navigator", {
+    vi.stubGlobal('navigator', {
       mediaDevices: {
         enumerateDevices: vi.fn(async () => []),
         getUserMedia: vi.fn(async () => stream),
@@ -210,7 +208,7 @@ describe("Capture plugins smoke tests (with minimal mocks)", () => {
     );
 
     expect(frame).toBeTruthy();
-    expect(frame.type).toBe("webcam");
+    expect(frame.type).toBe('webcam');
     expect(frame.element).toBeTruthy();
     expect(frame.stream).toBe(stream);
     expect(dom.body.appendChild).toHaveBeenCalled();

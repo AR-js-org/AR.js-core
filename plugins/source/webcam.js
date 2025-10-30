@@ -4,12 +4,12 @@
  * Emits source lifecycle events and provides HTMLVideoElement + MediaStream
  */
 
-import { EVENTS } from "../../src/core/components.js";
+import { EVENTS } from '../../src/core/components.js';
 
 export const webcamPlugin = {
-  id: "source:webcam",
-  name: "Webcam Source",
-  type: "source",
+  id: 'source:webcam',
+  name: 'Webcam Source',
+  type: 'source',
 
   // Internal state
   _videoElement: null,
@@ -43,15 +43,15 @@ export const webcamPlugin = {
       !globalThis.navigator.mediaDevices.getUserMedia ||
       !globalThis.navigator.mediaDevices.enumerateDevices
     ) {
-      const error = new Error("MediaDevices API not available in this browser");
-      eventBus.emit(EVENTS.SOURCE_ERROR, { error, source: "webcam" });
+      const error = new Error('MediaDevices API not available in this browser');
+      eventBus.emit(EVENTS.SOURCE_ERROR, { error, source: 'webcam' });
       throw error;
     }
 
     try {
       // Create video element
       const videoElement =
-        globalThis.document?.createElement?.("video") ||
+        globalThis.document?.createElement?.('video') ||
         Object.assign(
           {},
           {
@@ -60,28 +60,28 @@ export const webcamPlugin = {
             play: async () => {},
           },
         );
-      videoElement.setAttribute?.("autoplay", "");
-      videoElement.setAttribute?.("muted", "");
-      videoElement.setAttribute?.("playsinline", "");
-      videoElement.setAttribute?.("id", "arjs-video");
+      videoElement.setAttribute?.('autoplay', '');
+      videoElement.setAttribute?.('muted', '');
+      videoElement.setAttribute?.('playsinline', '');
+      videoElement.setAttribute?.('id', 'arjs-video');
 
       // Set display size
       const displayWidth = config.displayWidth || 640;
       const displayHeight = config.displayHeight || 480;
       if (videoElement.style) {
-        videoElement.style.width = displayWidth + "px";
-        videoElement.style.height = displayHeight + "px";
-        videoElement.style.position = "absolute";
-        videoElement.style.top = "0px";
-        videoElement.style.left = "0px";
-        videoElement.style.zIndex = "-2";
+        videoElement.style.width = displayWidth + 'px';
+        videoElement.style.height = displayHeight + 'px';
+        videoElement.style.position = 'absolute';
+        videoElement.style.top = '0px';
+        videoElement.style.left = '0px';
+        videoElement.style.zIndex = '-2';
       }
 
       // Build getUserMedia constraints
       const constraints = {
         audio: false,
         video: {
-          facingMode: "environment",
+          facingMode: 'environment',
           width: { ideal: config.sourceWidth || 640 },
           height: { ideal: config.sourceHeight || 480 },
         },
@@ -93,8 +93,7 @@ export const webcamPlugin = {
       }
 
       // Get media stream
-      const stream =
-        await globalThis.navigator.mediaDevices.getUserMedia(constraints);
+      const stream = await globalThis.navigator.mediaDevices.getUserMedia(constraints);
 
       // Set video source
       videoElement.srcObject = stream;
@@ -117,12 +116,12 @@ export const webcamPlugin = {
               // Dispatch custom event for backward compatibility
               try {
                 globalThis.window?.dispatchEvent?.(
-                  new globalThis.CustomEvent("camera-init", {
+                  new globalThis.CustomEvent('camera-init', {
                     detail: { stream },
                   }),
                 );
                 globalThis.window?.dispatchEvent?.(
-                  new globalThis.CustomEvent("arjs-video-loaded", {
+                  new globalThis.CustomEvent('arjs-video-loaded', {
                     detail: { component: videoElement },
                   }),
                 );
@@ -132,11 +131,11 @@ export const webcamPlugin = {
               eventBus.emit(EVENTS.SOURCE_LOADED, {
                 element: videoElement,
                 stream,
-                source: "webcam",
+                source: 'webcam',
               });
               eventBus.emit(EVENTS.SOURCE_PLAYING, {
                 element: videoElement,
-                source: "webcam",
+                source: 'webcam',
               });
 
               resolve();
@@ -149,28 +148,27 @@ export const webcamPlugin = {
 
       // Get actual video dimensions
       const actualWidth = videoElement.videoWidth || config.sourceWidth || 640;
-      const actualHeight =
-        videoElement.videoHeight || config.sourceHeight || 480;
+      const actualHeight = videoElement.videoHeight || config.sourceHeight || 480;
 
       return {
         element: videoElement,
         stream: stream,
         width: actualWidth,
         height: actualHeight,
-        type: "webcam",
+        type: 'webcam',
       };
     } catch (error) {
       // Emit error event
       context?.eventBus?.emit?.(EVENTS.SOURCE_ERROR, {
         error,
-        source: "webcam",
+        source: 'webcam',
         message: error.message,
       });
 
       // Dispatch custom event for backward compatibility
       try {
         globalThis.window?.dispatchEvent?.(
-          new globalThis.CustomEvent("camera-error", { detail: { error } }),
+          new globalThis.CustomEvent('camera-error', { detail: { error } }),
         );
       } catch {}
 
@@ -201,7 +199,7 @@ export const webcamPlugin = {
 
     if (this._context?.eventBus) {
       this._context.eventBus.emit(EVENTS.CAPTURE_DISPOSED, {
-        source: "webcam",
+        source: 'webcam',
       });
     }
   },
@@ -214,13 +212,11 @@ export const webcamPlugin = {
     if (!this._stream) return false;
 
     // Guard against environments where MediaStream is undefined
-    const hasCtor = typeof globalThis.MediaStream === "function";
+    const hasCtor = typeof globalThis.MediaStream === 'function';
     if (!hasCtor) {
       // Fallback: duck-type for getVideoTracks availability
       const vt = this._stream?.getVideoTracks?.();
-      return Array.isArray(vt) && vt[0]?.getCapabilities
-        ? !!vt[0].getCapabilities().torch
-        : false;
+      return Array.isArray(vt) && vt[0]?.getCapabilities ? !!vt[0].getCapabilities().torch : false;
     }
 
     const videoTrack = this._stream.getVideoTracks?.()[0];
@@ -239,7 +235,7 @@ export const webcamPlugin = {
   async toggleMobileTorch(enabled) {
     // Only proceed if torch is available
     if (!this.hasMobileTorch()) {
-      console.warn?.("Mobile torch is not available on this device");
+      console.warn?.('Mobile torch is not available on this device');
       return false;
     }
 
@@ -254,7 +250,7 @@ export const webcamPlugin = {
       this._torchEnabled = newState;
       return newState;
     } catch (error) {
-      console.error?.("Failed to toggle torch:", error);
+      console.error?.('Failed to toggle torch:', error);
       return currentState;
     }
   },

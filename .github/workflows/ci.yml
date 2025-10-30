@@ -2,18 +2,18 @@ name: CI
 
 on:
   push:
-    branches: ["**"]
+    branches: ['**']
     paths:
-      - "src/**"
-      - "plugins/**"
-      - "examples/**"
-      - "tests/**"
-      - "package.json"
-      - "vite.config.js"
-      - "vitest.config.js"
-      - ".github/workflows/**"
+      - 'src/**'
+      - 'plugins/**'
+      - 'examples/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'vite.config.js'
+      - 'vitest.config.js'
+      - '.github/workflows/**'
   pull_request:
-    branches: ["**"]
+    branches: ['**']
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -101,4 +101,4 @@ jobs:
         run: npm run build:vite
         env:
           # Ask rollup to use JS fallback if native optional dep is still missing
-          ROLLUP_SKIP_NODEJS_NATIVE: "1"
+          ROLLUP_SKIP_NODEJS_NATIVE: '1'

@@ -3,10 +3,10 @@
  * Orchestrates ECS, event bus, plugin manager, and game loop
  */
 
-import { ECS } from "./ecs.js";
-import { EventBus } from "./event-bus.js";
-import { PluginManager } from "./plugin-manager.js";
-import { EVENTS } from "./components.js";
+import { ECS } from './ecs.js';
+import { EventBus } from './event-bus.js';
+import { PluginManager } from './plugin-manager.js';
+import { EVENTS } from './components.js';
 
 export class Engine {
   constructor() {
@@ -25,8 +25,8 @@ export class Engine {
    * @param {Function} system - System function
    */
   addSystem(system) {
-    if (typeof system !== "function") {
-      console.error("System must be a function");
+    if (typeof system !== 'function') {
+      console.error('System must be a function');
       return;
     }
     this.systems.push(system);
@@ -48,7 +48,7 @@ export class Engine {
    */
   start() {
     if (this.isRunning) {
-      console.warn("Engine is already running");
+      console.warn('Engine is already running');
       return;
     }
 
@@ -103,7 +103,7 @@ export class Engine {
       try {
         system(deltaTime, context);
       } catch (error) {
-        console.error("Error in system:", error);
+        console.error('Error in system:', error);
       }
     }
 
@@ -133,7 +133,7 @@ export class Engine {
       try {
         system(deltaTime, context);
       } catch (error) {
-        console.error("Error in system:", error);
+        console.error('Error in system:', error);
       }
     }
 

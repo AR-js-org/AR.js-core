@@ -4,16 +4,12 @@
  * Backward-compatible: legacy DEVICE_PROFILES mappings still supported.
  */
 
-import {
-  RESOURCES,
-  DEVICE_PROFILES,
-  QUALITY_TIERS,
-} from "../../src/core/components.js";
+import { RESOURCES, DEVICE_PROFILES, QUALITY_TIERS } from '../../src/core/components.js';
 
 export const defaultProfilePlugin = {
-  id: "profile:default",
-  name: "Default Profile Policy (auto)",
-  type: "profile",
+  id: 'profile:default',
+  name: 'Default Profile Policy (auto)',
+  type: 'profile',
 
   /**
    * Initialize the plugin: compute auto profile and publish it
@@ -22,7 +18,7 @@ export const defaultProfilePlugin = {
     const profile = await this._computeAutoProfile();
     context.ecs.setResource(RESOURCES.DEVICE_PROFILE, profile);
     // Emit a profile-applied event for observers (optional)
-    context?.eventBus?.emit?.("profile:applied", { profile });
+    context?.eventBus?.emit?.('profile:applied', { profile });
   },
 
   /**
@@ -80,30 +76,24 @@ export const defaultProfilePlugin = {
    * Get device capability signals (defensive checks for non-browser envs)
    */
   _getCaps() {
-    const nav = typeof navigator !== "undefined" ? navigator : {};
-    const win = typeof window !== "undefined" ? window : {};
-    const scr = typeof screen !== "undefined" ? screen : {};
+    const nav = typeof navigator !== 'undefined' ? navigator : {};
+    const win = typeof window !== 'undefined' ? window : {};
+    const scr = typeof screen !== 'undefined' ? screen : {};
 
-    const userAgentHint =
-      typeof nav.userAgent === "string" ? nav.userAgent : "";
+    const userAgentHint = typeof nav.userAgent === 'string' ? nav.userAgent : '';
     const cores = Math.max(1, Number(nav.hardwareConcurrency || 2));
     const memoryGB = Math.max(0.5, Number(nav.deviceMemory || 2));
     const webgl2 = !!win.WebGL2RenderingContext;
-    const wasmSIMD =
-      typeof WebAssembly === "object" &&
-      typeof WebAssembly.validate === "function";
-    const screenLongSide =
-      Math.max(Number(scr.width || 0), Number(scr.height || 0)) || 0;
+    const wasmSIMD = typeof WebAssembly === 'object' && typeof WebAssembly.validate === 'function';
+    const screenLongSide = Math.max(Number(scr.width || 0), Number(scr.height || 0)) || 0;
 
     let torch = false;
-    let focusMode = "unknown";
+    let focusMode = 'unknown';
     try {
-      const getSC = nav.mediaDevices?.getSupportedConstraints?.bind(
-        nav.mediaDevices,
-      );
+      const getSC = nav.mediaDevices?.getSupportedConstraints?.bind(nav.mediaDevices);
       const sc = getSC ? getSC() : {};
       torch = !!sc?.torch;
-      focusMode = sc?.focusMode ? "supported" : "unknown";
+      focusMode = sc?.focusMode ? 'supported' : 'unknown';
     } catch {
       // ignore
     }
@@ -123,10 +113,7 @@ export const defaultProfilePlugin = {
    * Very small CPU probe to approximate budget
    */
   async _microBenchmark(msTarget = 8) {
-    if (
-      typeof performance === "undefined" ||
-      typeof performance.now !== "function"
-    ) {
+    if (typeof performance === 'undefined' || typeof performance.now !== 'function') {
       return 0;
     }
     const start = performance.now();
@@ -157,7 +144,7 @@ export const defaultProfilePlugin = {
     score += Math.min(10, Math.floor((caps.screenLongSide || 0) / 600));
 
     // Normalize bench signal into ~0..10
-    if (typeof benchSignal === "number") {
+    if (typeof benchSignal === 'number') {
       const norm = Math.max(0, Math.log10(Math.max(10, benchSignal)));
       score += Math.min(10, 5 + norm);
     }
@@ -175,7 +162,7 @@ export const defaultProfilePlugin = {
         tier: QUALITY_TIERS.ULTRA,
         capture: [1280, 720],
         budget: 12,
-        complexity: "high",
+        complexity: 'high',
       };
     }
     if (score >= 65) {
@@ -183,7 +170,7 @@ export const defaultProfilePlugin = {
         tier: QUALITY_TIERS.HIGH,
         capture: [960, 540],
         budget: 10,
-        complexity: "high",
+        complexity: 'high',
       };
     }
     if (score >= 45) {
@@ -191,14 +178,14 @@ export const defaultProfilePlugin = {
         tier: QUALITY_TIERS.MEDIUM,
         capture: [800, 450],
         budget: 8,
-        complexity: "medium",
+        complexity: 'medium',
       };
     }
     return {
       tier: QUALITY_TIERS.LOW,
       capture: [640, 360],
       budget: 6,
-      complexity: "low",
+      complexity: 'low',
     };
   },
 
@@ -265,7 +252,7 @@ export const defaultProfilePlugin = {
    * @private
    */
   _isMobileDevice() {
-    const ua = (typeof navigator !== "undefined" && navigator.userAgent) || "";
+    const ua = (typeof navigator !== 'undefined' && navigator.userAgent) || '';
     return !!(
       ua.match(/Android/i) ||
       ua.match(/webOS/i) ||

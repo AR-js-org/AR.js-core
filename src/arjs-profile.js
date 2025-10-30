@@ -1,6 +1,6 @@
-import { Utils } from "./new-api/arjs-utils";
+import { Utils } from './new-api/arjs-utils';
 //ArToolkitContext imported only for baseUrl
-import ArToolkitContext from "./arjs-context"; // TODO context build-dependent
+import ArToolkitContext from './arjs-context'; // TODO context build-dependent
 
 /**
  * ArToolkitProfile helps you build parameters for artoolkit
@@ -13,7 +13,7 @@ export default class Profile {
   constructor() {
     this.reset();
 
-    this.performance("default");
+    this.performance('default');
   }
 
   #guessPerformanceLabel() {
@@ -28,9 +28,9 @@ export default class Profile {
         ? true
         : false;
     if (isMobile === true) {
-      return "phone-normal";
+      return 'phone-normal';
     }
-    return "desktop-normal";
+    return 'desktop-normal';
   }
 
   //////////////////////////////////////////////////////////////////////////////
@@ -44,18 +44,17 @@ export default class Profile {
   reset() {
     this.sourceParameters = {
       // to read from the webcam
-      sourceType: "webcam",
+      sourceType: 'webcam',
     };
 
     this.contextParameters = {
-      cameraParametersUrl:
-        ArToolkitContext.baseURL + "../data/data/camera_para.dat", // TODO dependent of build?
-      detectionMode: "mono",
+      cameraParametersUrl: ArToolkitContext.baseURL + '../data/data/camera_para.dat', // TODO dependent of build?
+      detectionMode: 'mono',
     };
     this.defaultMarkerParameters = {
-      type: "pattern",
-      patternUrl: ArToolkitContext.baseURL + "../data/data/patt.hiro", // TODO dependent of build?
-      changeMatrixMode: "modelViewMatrix",
+      type: 'pattern',
+      patternUrl: ArToolkitContext.baseURL + '../data/data/patt.hiro', // TODO dependent of build?
+      changeMatrixMode: 'modelViewMatrix',
     };
     return this;
   }
@@ -65,32 +64,32 @@ export default class Profile {
   //////////////////////////////////////////////////////////////////////////////
 
   performance(label) {
-    if (label === "default") {
+    if (label === 'default') {
       label = this.#guessPerformanceLabel();
     }
 
-    if (label === "desktop-fast") {
+    if (label === 'desktop-fast') {
       this.contextParameters.canvasWidth = 640 * 3;
       this.contextParameters.canvasHeight = 480 * 3;
 
       this.contextParameters.maxDetectionRate = 30;
-    } else if (label === "desktop-normal") {
+    } else if (label === 'desktop-normal') {
       this.contextParameters.canvasWidth = 640;
       this.contextParameters.canvasHeight = 480;
 
       this.contextParameters.maxDetectionRate = 60;
-    } else if (label === "phone-normal") {
+    } else if (label === 'phone-normal') {
       this.contextParameters.canvasWidth = 80 * 4;
       this.contextParameters.canvasHeight = 60 * 4;
 
       this.contextParameters.maxDetectionRate = 30;
-    } else if (label === "phone-slow") {
+    } else if (label === 'phone-slow') {
       this.contextParameters.canvasWidth = 80 * 3;
       this.contextParameters.canvasHeight = 60 * 3;
 
       this.contextParameters.maxDetectionRate = 30;
     } else {
-      console.assert(false, "unknonwn label " + label);
+      console.assert(false, 'unknonwn label ' + label);
     }
     return this;
   }
@@ -102,11 +101,10 @@ export default class Profile {
   defaultMarker(trackingBackend) {
     trackingBackend = trackingBackend || this.contextParameters.trackingBackend;
 
-    if (trackingBackend === "artoolkit") {
-      this.contextParameters.detectionMode = "mono";
-      this.defaultMarkerParameters.type = "pattern";
-      this.defaultMarkerParameters.patternUrl =
-        ArToolkitContext.baseURL + "../data/data/patt.hiro"; // TODO dependent of build?
+    if (trackingBackend === 'artoolkit') {
+      this.contextParameters.detectionMode = 'mono';
+      this.defaultMarkerParameters.type = 'pattern';
+      this.defaultMarkerParameters.patternUrl = ArToolkitContext.baseURL + '../data/data/patt.hiro'; // TODO dependent of build?
     } else console.assert(false);
 
     return this;
@@ -115,19 +113,19 @@ export default class Profile {
   //		Source
   //////////////////////////////////////////////////////////////////////////////
   sourceWebcam() {
-    this.sourceParameters.sourceType = "webcam";
+    this.sourceParameters.sourceType = 'webcam';
     delete this.sourceParameters.sourceUrl;
     return this;
   }
 
   sourceVideo(url) {
-    this.sourceParameters.sourceType = "video";
+    this.sourceParameters.sourceType = 'video';
     this.sourceParameters.sourceUrl = url;
     return this;
   }
 
   sourceImage(url) {
-    this.sourceParameters.sourceType = "image";
+    this.sourceParameters.sourceType = 'image';
     this.sourceParameters.sourceUrl = url;
     return this;
   }
@@ -136,9 +134,7 @@ export default class Profile {
   //		trackingBackend
   //////////////////////////////////////////////////////////////////////////////
   trackingBackend(trackingBackend) {
-    console.warn(
-      "stop profile.trackingBackend() obsolete function. use .trackingMethod instead",
-    );
+    console.warn('stop profile.trackingBackend() obsolete function. use .trackingMethod instead');
     this.contextParameters.trackingBackend = trackingBackend;
     return this;
   }

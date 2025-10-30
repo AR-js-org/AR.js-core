@@ -27,7 +27,7 @@ export class PluginManager {
     }
 
     // Validate plugin structure
-    if (typeof plugin !== "object") {
+    if (typeof plugin !== 'object') {
       console.error(`Plugin ${pluginId} must be an object`);
       return false;
     }
@@ -35,7 +35,7 @@ export class PluginManager {
     this.plugins.set(pluginId, plugin);
 
     if (this.eventBus) {
-      this.eventBus.emit("plugin:registered", { pluginId, plugin });
+      this.eventBus.emit('plugin:registered', { pluginId, plugin });
     }
 
     return true;
@@ -82,14 +82,14 @@ export class PluginManager {
 
     try {
       // Call plugin's init method if it exists
-      if (typeof plugin.init === "function") {
+      if (typeof plugin.init === 'function') {
         await plugin.init(context);
       }
 
       this.enabledPlugins.add(pluginId);
 
       if (this.eventBus) {
-        this.eventBus.emit("plugin:enabled", { pluginId, plugin });
+        this.eventBus.emit('plugin:enabled', { pluginId, plugin });
       }
 
       return true;
@@ -114,14 +114,14 @@ export class PluginManager {
 
     try {
       // Call plugin's dispose method if it exists
-      if (typeof plugin.dispose === "function") {
+      if (typeof plugin.dispose === 'function') {
         await plugin.dispose();
       }
 
       this.enabledPlugins.delete(pluginId);
 
       if (this.eventBus) {
-        this.eventBus.emit("plugin:disabled", { pluginId, plugin });
+        this.eventBus.emit('plugin:disabled', { pluginId, plugin });
       }
 
       return true;
@@ -182,7 +182,7 @@ export class PluginManager {
   update(deltaTime, context) {
     for (const pluginId of this.enabledPlugins) {
       const plugin = this.plugins.get(pluginId);
-      if (plugin && typeof plugin.update === "function") {
+      if (plugin && typeof plugin.update === 'function') {
         try {
           plugin.update(deltaTime, context);
         } catch (error) {

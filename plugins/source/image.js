@@ -4,12 +4,12 @@
  * Emits source lifecycle events and provides HTMLImageElement
  */
 
-import { EVENTS } from "../../src/core/components.js";
+import { EVENTS } from '../../src/core/components.js';
 
 export const imagePlugin = {
-  id: "source:image",
-  name: "Image Source",
-  type: "source",
+  id: 'source:image',
+  name: 'Image Source',
+  type: 'source',
 
   // Internal state
   _imageElement: null,
@@ -37,26 +37,26 @@ export const imagePlugin = {
     const { eventBus } = context;
 
     if (!config.sourceUrl) {
-      const error = new Error("sourceUrl is required for image source");
-      eventBus.emit(EVENTS.SOURCE_ERROR, { error, source: "image" });
+      const error = new Error('sourceUrl is required for image source');
+      eventBus.emit(EVENTS.SOURCE_ERROR, { error, source: 'image' });
       throw error;
     }
 
     try {
       // Create image element
-      const imageElement = document.createElement("img");
+      const imageElement = document.createElement('img');
       imageElement.src = config.sourceUrl;
-      imageElement.setAttribute("id", "arjs-video");
+      imageElement.setAttribute('id', 'arjs-video');
 
       // Set display size
       const displayWidth = config.displayWidth || 640;
       const displayHeight = config.displayHeight || 480;
-      imageElement.style.width = displayWidth + "px";
-      imageElement.style.height = displayHeight + "px";
-      imageElement.style.position = "absolute";
-      imageElement.style.top = "0px";
-      imageElement.style.left = "0px";
-      imageElement.style.zIndex = "-2";
+      imageElement.style.width = displayWidth + 'px';
+      imageElement.style.height = displayHeight + 'px';
+      imageElement.style.position = 'absolute';
+      imageElement.style.top = '0px';
+      imageElement.style.left = '0px';
+      imageElement.style.zIndex = '-2';
 
       // Set internal dimensions if specified
       if (config.sourceWidth) {
@@ -77,7 +77,7 @@ export const imagePlugin = {
 
           // Dispatch custom event for backward compatibility
           window.dispatchEvent(
-            new CustomEvent("arjs-video-loaded", {
+            new CustomEvent('arjs-video-loaded', {
               detail: { component: imageElement },
             }),
           );
@@ -85,40 +85,34 @@ export const imagePlugin = {
           // Emit source events
           eventBus.emit(EVENTS.SOURCE_LOADED, {
             element: imageElement,
-            source: "image",
+            source: 'image',
           });
 
           resolve();
         };
 
         imageElement.onerror = (error) => {
-          reject(
-            new Error(
-              `Failed to load image: ${error.message || "Unknown error"}`,
-            ),
-          );
+          reject(new Error(`Failed to load image: ${error.message || 'Unknown error'}`));
         };
       });
 
       // Get actual image dimensions
-      const actualWidth =
-        imageElement.naturalWidth || config.sourceWidth || 640;
-      const actualHeight =
-        imageElement.naturalHeight || config.sourceHeight || 480;
+      const actualWidth = imageElement.naturalWidth || config.sourceWidth || 640;
+      const actualHeight = imageElement.naturalHeight || config.sourceHeight || 480;
 
       return {
         element: imageElement,
         width: actualWidth,
         height: actualHeight,
-        type: "image",
+        type: 'image',
       };
     } catch (error) {
-      console.error("Image capture failed:", error);
+      console.error('Image capture failed:', error);
 
       // Emit error event
       eventBus.emit(EVENTS.SOURCE_ERROR, {
         error,
-        source: "image",
+        source: 'image',
         message: error.message,
       });
 
@@ -141,7 +135,7 @@ export const imagePlugin = {
 
     if (this._context && this._context.eventBus) {
       this._context.eventBus.emit(EVENTS.CAPTURE_DISPOSED, {
-        source: "image",
+        source: 'image',
       });
     }
   },

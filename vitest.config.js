@@ -1,10 +1,10 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    include: ["tests/**/*.test.js"],
-    environment: "node",
-    setupFiles: ["tests/setup.js"],
+    include: ['tests/**/*.test.js'],
+    environment: 'node',
+    setupFiles: ['tests/setup.js'],
     // Make tests more deterministic across platforms
     restoreMocks: true,
     clearMocks: true,

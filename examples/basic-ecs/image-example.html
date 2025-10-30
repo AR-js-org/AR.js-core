@@ -2,10 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>AR.js-core ECS - Image Source Example</title>
     <style>
       html,
@@ -98,13 +95,13 @@
     </div>
 
     <script type="module">
-      import { Engine } from "../../src/core/engine.js";
-      import { imagePlugin } from "../../plugins/source/image.js";
+      import { Engine } from '../../src/core/engine.js';
+      import { imagePlugin } from '../../plugins/source/image.js';
 
-      const statusEl = document.getElementById("status");
-      const urlEl = document.getElementById("url");
-      const loadBtn = document.getElementById("load");
-      const clearBtn = document.getElementById("clear");
+      const statusEl = document.getElementById('status');
+      const urlEl = document.getElementById('url');
+      const loadBtn = document.getElementById('load');
+      const clearBtn = document.getElementById('clear');
 
       // Initialize engine (provides eventBus and context)
       const engine = new Engine();
@@ -115,18 +112,18 @@
 
       function setStatus(msg, ok = true) {
         statusEl.textContent = msg;
-        statusEl.className = ok ? "status-ok" : "status-bad";
+        statusEl.className = ok ? 'status-ok' : 'status-bad';
       }
 
       function removeExisting() {
-        const el = document.getElementById("arjs-video");
+        const el = document.getElementById('arjs-video');
         if (el && el.parentNode) el.parentNode.removeChild(el);
       }
 
       async function loadImage(url) {
         if (!url) return;
         try {
-          setStatus("Loading image...", true);
+          setStatus('Loading image...', true);
           // Remove any previous image first
           removeExisting();
 
@@ -147,22 +144,22 @@
             document.body.appendChild(frame.element);
           }
 
-          setStatus("Image loaded", true);
+          setStatus('Image loaded', true);
         } catch (e) {
           console.error(e);
-          setStatus("Failed to load image. Check the URL and CORS.", false);
+          setStatus('Failed to load image. Check the URL and CORS.', false);
         }
       }
 
       // Wire up UI
-      loadBtn.addEventListener("click", () => {
-        const url = (urlEl.value || "").trim();
+      loadBtn.addEventListener('click', () => {
+        const url = (urlEl.value || '').trim();
         loadImage(url);
       });
 
-      clearBtn.addEventListener("click", () => {
+      clearBtn.addEventListener('click', () => {
         removeExisting();
-        setStatus("Cleared", true);
+        setStatus('Cleared', true);
       });
 
       // Auto-load the initial URL
