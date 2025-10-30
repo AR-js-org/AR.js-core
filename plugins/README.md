@@ -225,6 +225,22 @@ export const defaultProfilePlugin = {
 };
 ```
 
+## Migration note: Device profiles
+
+- Legacy DEVICE_PROFILES (desktop-fast, desktop-normal, phone-normal, phone-slow) remain available for backward compatibility.
+- New QUALITY_TIERS (low, medium, high, ultra) are computed at runtime based on device capabilities and a short micro-benchmark. The default profile plugin writes a structured object to `RESOURCES.DEVICE_PROFILE` with:
+  - `label`: e.g., "auto-high"
+  - `qualityTier`: one of QUALITY_TIERS
+  - `score`: number (0..100)
+  - `caps`: capability signals (cores, memoryGB, webgl2, wasmSIMD, screenLongSide, camera)
+  - `capture`: sizing hints (sourceWidth, sourceHeight, displayWidth, displayHeight, fpsHint)
+  - `processing`: budget hints (budgetMsPerFrame, complexity)
+- Overriding:
+  - To force a legacy profile, call `defaultProfilePlugin.setProfile("<legacy-label>", context)`.
+  - To apply custom app-specific sizing, set your own object to `RESOURCES.DEVICE_PROFILE` after enabling the profile plugin.
+- Compatibility:
+  - The new profile object still includes top-level `label`, `sourceWidth`, `sourceHeight`, `displayWidth`, `displayHeight` to minimize changes in existing examples.
+
 ## See Also
 
 - ECS Architecture Documentation (docs/ECS_ARCHITECTURE.md)
