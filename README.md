@@ -57,7 +57,7 @@ engine.start();
 
 You can use either webpack (existing) or Vite (new) during development.
 
-Webpack:
+**Webpack:**
 
 ```bash
 npm install
@@ -66,7 +66,7 @@ npm run dev
 npm run dev:watch
 ```
 
-Vite:
+**Vite:**
 
 ```bash
 npm install
@@ -80,7 +80,7 @@ npm run build:vite
 npm run serve:vite
 ```
 
-Examples:
+**Examples:**
 - Minimal Example: examples/minimal/index.html (Vite: http://localhost:5173/examples/minimal/index.html)
 - Image Source Example: examples/basic-ecs/image-example.html (Vite: http://localhost:5173/examples/basic-ecs/image-example.html)
 
