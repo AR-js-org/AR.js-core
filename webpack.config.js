@@ -4,8 +4,8 @@ module.exports = {
   entry: "./src/index.js",
   output: {
     path: path.resolve("dist"),
-    filename: "ARjs-core.js",
-    library: "ARjs-core",
+    filename: "ar-core.js",
+    library: "ar.js-core",
     libraryTarget: "umd",
     // @see: https://github.com/webpack/webpack/issues/3929
     libraryExport: "default",
