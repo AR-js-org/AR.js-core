@@ -43,9 +43,11 @@
     "webpack-dev-server": "^5.0.4"
   },
   "devDependencies": {
-    "vite": "^5.4.0",
-    "vitest": "^1.6.0",
-    "rollup": "^4.24.0"
+    "@vitest/coverage-v8": "^4.0.5",
+    "@vitest/ui": "^4.0.5",
+    "rollup": "^4.24.0",
+    "vite": "^5.4.21",
+    "vitest": "^4.0.5"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.24.0"
