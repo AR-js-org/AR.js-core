@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR.js ECS - Image Source Example</title>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+        background: #f0f0f0;
+      }
+
+      #info {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 15px;
+        border-radius: 5px;
+        z-index: 1000;
+        max-width: 300px;
+      }
+
+      #info h2 {
+        margin: 0 0 10px 0;
+        font-size: 18px;
+      }
+
+      #info p {
+        margin: 5px 0;
+        font-size: 12px;
+      }
+
+      #info .status {
+        font-weight: bold;
+        color: #4caf50;
+      }
+
+      #info .error {
+        color: #f44336;
+      }
+
+      button {
+        margin: 5px 5px 0 0;
+        padding: 8px 15px;
+        background: #2196f3;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      button:hover {
+        background: #1976d2;
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info">
+      <h2>AR.js ECS Image Example</h2>
+      <p>Status: <span id="status" class="status">Initializing...</span></p>
+      <p>Source Type: <span id="sourceType">-</span></p>
+      <p>Profile: <span id="profile">-</span></p>
+      <p>Engine Running: <span id="engineStatus">No</span></p>
+      <div>
+        <button id="startBtn" disabled>Start Engine</button>
+        <button id="stopBtn" disabled>Stop Engine</button>
+      </div>
+    </div>
+
+    <script type="module">
+      // Import ECS core
+      import { Engine } from "../../src/core/engine.js";
+      import { CaptureSystem } from "../../src/systems/capture-system.js";
+      import { ResourceType } from "../../src/core/components.js";
+
+      // Import plugins
+      import { ImagePlugin } from "../../plugins/source/image.js";
+      import { DefaultProfilePlugin } from "../../plugins/profile/default-profile.js";
+
+      // Create a simple 1x1 pixel data URL image for testing
+      const testImageDataURL =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
+      // Create engine
+      const engine = new Engine();
+
+      // Register plugins
+      engine.plugins.register("source:image", new ImagePlugin());
+      engine.plugins.register("profile:default", new DefaultProfilePlugin());
+
+      // Enable plugins
+      engine.plugins.enable("source:image");
+      engine.plugins.enable("profile:default");
+
+      // Get profile settings
+      const profile = engine.ecs.getResource(ResourceType.DEVICE_PROFILE);
+
+      // Create capture system with image
+      const captureSystem = new CaptureSystem({
+        sourceType: "image",
+        sourceUrl: testImageDataURL,
+        sourceWidth: profile ? profile.sourceWidth : 640,
+        sourceHeight: profile ? profile.sourceHeight : 480,
+        displayWidth: profile ? profile.displayWidth : 640,
+        displayHeight: profile ? profile.displayHeight : 480,
+      });
+
+      // Simple logging system
+      let updateCount = 0;
+      function loggingSystem(engine, deltaTime) {
+        updateCount++;
+        if (updateCount % 60 === 0) {
+          console.log(
+            `Engine update #${updateCount}, deltaTime: ${deltaTime.toFixed(3)}s`,
+          );
+        }
+      }
+
+      // Add systems
+      engine.addSystem(loggingSystem);
+
+      // UI elements
+      const statusEl = document.getElementById("status");
+      const sourceTypeEl = document.getElementById("sourceType");
+      const profileEl = document.getElementById("profile");
+      const engineStatusEl = document.getElementById("engineStatus");
+      const startBtn = document.getElementById("startBtn");
+      const stopBtn = document.getElementById("stopBtn");
+
+      // Event listeners
+      engine.events.on("capture:initializing", (data) => {
+        statusEl.textContent = "Initializing capture...";
+        statusEl.className = "status";
+        sourceTypeEl.textContent = data.sourceType;
+      });
+
+      engine.events.on("capture:ready", (data) => {
+        statusEl.textContent = "Ready";
+        statusEl.className = "status";
+        stopBtn.disabled = false;
+        console.log("Capture ready, DOM element:", data.domElement);
+      });
+
+      engine.events.on("capture:error", (data) => {
+        statusEl.textContent = `Error: ${data.error}`;
+        statusEl.className = "error";
+      });
+
+      engine.events.on("profile:applied", (data) => {
+        profileEl.textContent = data.profile.profileLabel;
+        console.log("Profile applied:", data.profile);
+      });
+
+      engine.events.on("engine:start", () => {
+        engineStatusEl.textContent = "Yes";
+        console.log("Engine started");
+      });
+
+      engine.events.on("engine:stop", () => {
+        engineStatusEl.textContent = "No";
+        console.log("Engine stopped");
+      });
+
+      // Button handlers
+      startBtn.addEventListener("click", async () => {
+        startBtn.disabled = true;
+        try {
+          await captureSystem.init(engine);
+          engine.start();
+        } catch (error) {
+          console.error("Error starting:", error);
+          statusEl.textContent = `Error: ${error.message}`;
+          statusEl.className = "error";
+          startBtn.disabled = false;
+        }
+      });
+
+      stopBtn.addEventListener("click", () => {
+        engine.stop();
+        captureSystem.shutdown(engine);
+        statusEl.textContent = "Stopped";
+        statusEl.className = "status";
+        startBtn.disabled = false;
+        stopBtn.disabled = true;
+      });
+
+      // Initialize
+      console.log("AR.js ECS Engine initialized");
+      console.log("Plugins registered:", engine.plugins.list());
+      console.log("Profile:", profile);
+
+      // Auto-start after a brief delay
+      startBtn.disabled = false;
+      setTimeout(() => {
+        console.log("Auto-starting engine...");
+        startBtn.click();
+      }, 500);
+    </script>
+  </body>
+</html>
