@@ -6,10 +6,10 @@ An attempt to convert the Ar.js threex library into an agnostic library that can
 
 AR.js Core now includes a modern Entity-Component-System (ECS) architecture with a plugin system! This provides:
 
-- **Modular design** with a clean plugin system
-- **Data-oriented** ECS for efficient processing
-- **Event-driven** architecture with pub/sub messaging
-- **Backward compatible** with existing Source and Profile APIs
+- Modular design with a clean plugin system
+- Data-oriented ECS for efficient processing
+- Event-driven architecture with pub/sub messaging
+- Backward compatible with existing Source and Profile APIs
 
 ### Quick Start with ECS
 
@@ -42,25 +42,43 @@ engine.start();
 
 ### Features
 
-- **Core ECS**: Entity-Component-System with queries and resources
-- **Event Bus**: Lightweight pub/sub for decoupled communication
-- **Plugin System**: Modular plugins for capture, tracking, and more
-- **Capture System**: Unified interface for webcam, video, and image sources
-- **Profile Policies**: Automatic device detection and performance tuning
+- Core ECS: Entity-Component-System with queries and resources
+- Event Bus: Lightweight pub/sub for decoupled communication
+- Plugin System: Modular plugins for capture, tracking, and more
+- Capture System: Unified interface for webcam, video, and image sources
+- Profile Policies: Automatic device detection and performance tuning
 
 ### Documentation
 
-- [ECS Architecture Guide](docs/ECS_ARCHITECTURE.md) - Complete documentation
-- [Minimal Example](examples/minimal/) - Working example application
+- ECS Architecture Guide (docs/ECS_ARCHITECTURE.md) - Complete documentation
+- Minimal Example (examples/minimal/) - Working example application
 
 ### Running Examples
 
+You can use either webpack (existing) or Vite (new) during development.
+
+Webpack:
 ```bash
 npm install
 npm run dev
+# or watch:
+npm run dev:watch
 ```
 
-This will start a development server with the minimal example.
+Vite:
+```bash
+npm install
+npm run dev:vite
+# Opens the minimal example in your browser
+
+# Build ES module library:
+npm run build:vite
+
+# Preview build:
+npm run serve:vite
+```
+
+If the camera doesn’t start automatically, click or tap once to allow autoplay. For Safari or stricter policies, consider enabling HTTPS in `vite.config.js` (see comments in the file).
 
 ## Legacy API
 
