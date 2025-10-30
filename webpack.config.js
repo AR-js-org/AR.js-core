@@ -41,4 +41,22 @@ module.exports = {
       crypto: false,
     },
   },
+  externals: {
+    // three.js is only used by legacy Session class, make it external
+    three: "three",
+  },
+  devServer: {
+    static: [
+      {
+        directory: path.join(__dirname, "examples"),
+      },
+      {
+        directory: path.join(__dirname, "dist"),
+      },
+    ],
+    compress: true,
+    port: 8080,
+    hot: true,
+    open: "/minimal/index.html",
+  },
 };

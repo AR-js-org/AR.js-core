@@ -1,3 +1,73 @@
 # AR.js-core
 
 An attempt to convert the Ar.js threex library into an agnostic library that can be used with any 3D library.
+
+## New: ECS Architecture
+
+AR.js Core now includes a modern Entity-Component-System (ECS) architecture with a plugin system! This provides:
+
+- **Modular design** with a clean plugin system
+- **Data-oriented** ECS for efficient processing
+- **Event-driven** architecture with pub/sub messaging
+- **Backward compatible** with existing Source and Profile APIs
+
+### Quick Start with ECS
+
+```javascript
+import { Engine, CaptureSystem, SOURCE_TYPES } from "ar.js-core";
+import { webcamPlugin } from "./plugins/source/webcam.js";
+import { defaultProfilePlugin } from "./plugins/profile/default-policy.js";
+
+// Create engine and register plugins
+const engine = new Engine();
+engine.pluginManager.register(webcamPlugin.id, webcamPlugin);
+engine.pluginManager.register(defaultProfilePlugin.id, defaultProfilePlugin);
+
+// Enable profile plugin
+await engine.pluginManager.enable(defaultProfilePlugin.id, engine.getContext());
+
+// Initialize webcam capture
+await CaptureSystem.initialize(
+  {
+    sourceType: SOURCE_TYPES.WEBCAM,
+    sourceWidth: 640,
+    sourceHeight: 480,
+  },
+  engine.getContext(),
+);
+
+// Start the engine
+engine.start();
+```
+
+### Features
+
+- **Core ECS**: Entity-Component-System with queries and resources
+- **Event Bus**: Lightweight pub/sub for decoupled communication
+- **Plugin System**: Modular plugins for capture, tracking, and more
+- **Capture System**: Unified interface for webcam, video, and image sources
+- **Profile Policies**: Automatic device detection and performance tuning
+
+### Documentation
+
+- [ECS Architecture Guide](docs/ECS_ARCHITECTURE.md) - Complete documentation
+- [Minimal Example](examples/minimal/) - Working example application
+
+### Running Examples
+
+```bash
+npm install
+npm run dev
+```
+
+This will start a development server with the minimal example.
+
+## Legacy API
+
+The original Source and Profile classes are still available and fully supported:
+
+```javascript
+import { Source, Profile } from "ar.js-core";
+```
+
+See existing documentation for legacy API usage.

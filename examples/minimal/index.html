@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AR.js Core - Minimal ECS Example</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #1a1a1a;
+        color: #ffffff;
+      }
+
+      #info-panel {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 15px;
+        border-radius: 5px;
+        z-index: 100;
+        max-width: 300px;
+      }
+
+      #info-panel h2 {
+        margin-top: 0;
+        font-size: 18px;
+      }
+
+      #info-panel p {
+        margin: 5px 0;
+        font-size: 12px;
+      }
+
+      .status {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 5px;
+      }
+
+      .status.ready {
+        background-color: #00ff00;
+      }
+
+      .status.error {
+        background-color: #ff0000;
+      }
+
+      .status.loading {
+        background-color: #ffaa00;
+      }
+
+      #controls {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+      }
+
+      button {
+        padding: 10px 20px;
+        margin: 0 5px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      button:hover {
+        background-color: #45a049;
+      }
+
+      button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+      }
+
+      #error-message {
+        color: #ff6666;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="info-panel">
+      <h2>AR.js Core - ECS Architecture</h2>
+      <p>
+        <span class="status loading" id="status-indicator"></span
+        ><span id="status-text">Initializing...</span>
+      </p>
+      <p><strong>Profile:</strong> <span id="device-profile">Unknown</span></p>
+      <p><strong>Source Type:</strong> <span id="source-type">N/A</span></p>
+      <p><strong>FPS:</strong> <span id="fps">0</span></p>
+      <p id="error-message"></p>
+    </div>
+
+    <div id="controls">
+      <button id="btn-webcam">Start Webcam</button>
+      <button id="btn-stop">Stop</button>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

@@ -6,7 +6,8 @@
   "scripts": {
     "format-check": "prettier --check .",
     "format": "prettier --write .",
-    "dev": "webpack --mode development --progress --color --watch",
+    "dev": "webpack serve --mode development --open",
+    "dev:watch": "webpack --mode development --progress --color --watch",
     "build": "webpack --mode production",
     "build-types": "tsc"
   },
@@ -32,6 +33,7 @@
     "prettier": "^3.4.2",
     "typescript": "^5.7.2",
     "webpack": "^5.97.1",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
   }
 }
