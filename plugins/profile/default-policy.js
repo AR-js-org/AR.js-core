@@ -261,6 +261,7 @@ export const defaultProfilePlugin = {
 
   /**
    * Legacy mobile detection retained (unused by default)
+   * Enhanced to cover additional mobile devices and tablets
    * @private
    */
   _isMobileDevice() {
@@ -272,7 +273,15 @@ export const defaultProfilePlugin = {
       ua.match(/iPad/i) ||
       ua.match(/iPod/i) ||
       ua.match(/BlackBerry/i) ||
-      ua.match(/Windows Phone/i)
+      ua.match(/Windows Phone/i) ||
+      ua.match(/Opera Mini/i) ||
+      ua.match(/Opera Mobi/i) ||
+      ua.match(/IEMobile/i) ||
+      ua.match(/Mobile/i) ||
+      ua.match(/Kindle/i) ||
+      ua.match(/Silk/i) ||
+      ua.match(/PlayStation/i) ||
+      ua.match(/Nintendo/i)
     );
   },
 
