@@ -51,6 +51,7 @@ engine.start();
 ### Documentation
 
 - ECS Architecture Guide (docs/ECS_ARCHITECTURE.md) - Complete documentation
+- Plugins Guide (plugins/README.md) - Plugin contract, lifecycle, and events
 - Minimal Example (examples/minimal/) - Working example application
 
 ### Running Examples
@@ -71,7 +72,7 @@ npm run dev:watch
 ```bash
 npm install
 npm run dev:vite
-# Opens the minimal example in your browser
+# Opens the Examples index page in your browser
 
 # Build ES module library:
 npm run build:vite
@@ -82,6 +83,7 @@ npm run serve:vite
 
 **Examples:**
 
+- Examples Index: examples/index.html (Vite: http://localhost:5173/examples/index.html)
 - Minimal Example: examples/minimal/index.html (Vite: http://localhost:5173/examples/minimal/index.html)
 - Image Source Example: examples/basic-ecs/image-example.html (Vite: http://localhost:5173/examples/basic-ecs/image-example.html)
 
@@ -92,7 +94,7 @@ If the camera doesn’t start automatically, click or tap once to allow autoplay
 The original Source and Profile classes are still available and fully supported:
 
 ```javascript
-import { Source, Profile } from "ar.js-core";
+import { Source, Profile } from "arjs-core";
 ```
 
 See existing documentation for legacy API usage.

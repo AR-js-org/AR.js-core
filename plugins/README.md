@@ -1,127 +1,234 @@
 # AR.js Core Plugins
 
-This directory contains plugins for the AR.js Core ECS architecture.
+This guide explains how plugins work in the AR.js Core ECS architecture, including the plugin contract, lifecycle, and events.
 
-## Available Plugins
+## Overview
 
-### Source Plugins
+Plugins extend the core with modular functionality. Common categories include:
 
-Source plugins handle media capture and frame sources:
+- source: Media capture and frame sources (webcam, video, image)
+- profile: Performance and device configuration
+- tracking: AR tracking backends (future)
+- render: Rendering systems (future)
 
-- **webcam.js** - Capture video from user's webcam using getUserMedia
-- **video.js** - Play video from local or remote video files
-- **image.js** - Load static images for AR tracking
+Recommended ID pattern: "<category>:<name>" (for example, "source:webcam").
 
-### Profile Plugins
+## Plugin Contract
 
-Profile plugins manage performance and device configuration:
-
-- **default-policy.js** - Automatically detect device type and set performance profiles
-
-## Using Plugins
-
-### Import Individual Plugins
-
-```javascript
-// When working within the AR.js-core repository:
-import { webcamPlugin } from "./plugins/source/webcam.js";
-import { defaultProfilePlugin } from "./plugins/profile/default-policy.js";
-
-// Note: Adjust the path based on your file location relative to the plugins directory
-```
-
-### Import All Plugins
-
-```javascript
-import {
-  webcamPlugin,
-  videoPlugin,
-  imagePlugin,
-  defaultProfilePlugin,
-} from "./plugins/index.js";
-```
-
-### Register and Enable Plugins
-
-```javascript
-import { Engine } from "ar.js-core";
-// Import plugin from relative path (adjust based on your file location)
-import { webcamPlugin } from "./plugins/source/webcam.js";
-
-const engine = new Engine();
-
-// Register plugin
-engine.pluginManager.register(webcamPlugin.id, webcamPlugin);
-
-// Enable plugin
-await engine.pluginManager.enable(webcamPlugin.id, engine.getContext());
-```
-
-## Creating Custom Plugins
-
-Plugins are simple objects with lifecycle methods:
+A plugin is a simple object with lifecycle methods. All methods are optional, but the shape below is recommended.
 
 ```javascript
 const myPlugin = {
-  id: "category:name", // Unique identifier
+  id: "category:name", // Unique identifier (required)
   name: "My Plugin", // Human-readable name
   type: "category", // Plugin category
 
-  // Called when plugin is enabled
+  // Called when the plugin is enabled (via PluginManager.enable)
   async init(context) {
     const { ecs, eventBus, pluginManager, engine } = context;
-    // Initialize plugin state
+    // Initialize plugin state, store references, emit any setup events
   },
 
-  // Called each frame (optional)
+  // Called once per frame if implemented and the plugin is enabled
   update(deltaTime, context) {
-    // Update logic
+    // Per-frame logic
   },
 
-  // Called when plugin is disabled
+  // Called when the plugin is disabled or the engine is disposed
   async dispose() {
-    // Cleanup
+    // Cleanup, detach DOM elements, stop streams, release resources
   },
 };
 ```
 
-### Source Plugin Interface
+## Lifecycle
 
-Source plugins should implement a `capture` method:
+- Register: engine.pluginManager.register(id, plugin)
+- Enable: await engine.pluginManager.enable(id, context)
+  - Calls plugin.init(context)
+  - Emits plugin:enabled
+- Update: engine drives plugin.update(deltaTime, context) every frame while enabled
+- Disable: await engine.pluginManager.disable(id)
+  - Calls plugin.dispose()
+  - Emits plugin:disabled
+- Clear: await engine.pluginManager.clear() disables all and clears the registry
+
+## Events
+
+Plugins use the Event Bus to communicate. The following event types are emitted by core systems and plugins.
+
+Capture lifecycle:
+
+- capture:init:start
+- capture:init:success
+- capture:init:error
+- capture:ready
+- capture:disposed
+
+Source lifecycle:
+
+- source:loaded
+- source:error
+- source:playing
+- source:paused
+
+Engine lifecycle:
+
+- engine:start
+- engine:stop
+- engine:update
+
+Plugin lifecycle:
+
+- plugin:registered
+- plugin:enabled
+- plugin:disabled
+
+Listening to events:
 
 ```javascript
+import { EVENTS } from "../src/core/components.js";
+
+engine.eventBus.on(EVENTS.CAPTURE_READY, ({ frameSource }) => {
+  console.log("Capture ready:", frameSource);
+});
+```
+
+## Using Plugins
+
+Register and enable a plugin:
+
+```javascript
+import { Engine } from "../src/core/engine.js";
+import { webcamPlugin } from "./source/webcam.js";
+import { defaultProfilePlugin } from "./profile/default-policy.js";
+
+const engine = new Engine();
+
+// Register plugins
+engine.pluginManager.register(webcamPlugin.id, webcamPlugin);
+engine.pluginManager.register(defaultProfilePlugin.id, defaultProfilePlugin);
+
+// Enable profile (writes device profile resources)
+await engine.pluginManager.enable(defaultProfilePlugin.id, engine.getContext());
+
+// Enable other plugins as needed
+await engine.pluginManager.enable(webcamPlugin.id, engine.getContext());
+
+// Start the engine loop
+engine.start();
+```
+
+## Source Plugins
+
+Source plugins provide media sources (HTMLVideoElement/HTMLImageElement) for downstream processing.
+
+Capture interface:
+
+```javascript
+// Called by your app when you want to start capture
 async capture(config, context) {
-  // config contains sourceWidth, sourceHeight, etc.
+  // config example:
+  // { sourceUrl, sourceWidth, sourceHeight, displayWidth, displayHeight, deviceId, autoplay, loop, muted, playsInline }
+  // context: { ecs, eventBus, pluginManager, engine }
+
   // Return an object with:
   return {
-    element: domElement,  // HTMLVideoElement or HTMLImageElement
-    stream: mediaStream,  // MediaStream (for webcam) or null
-    width: actualWidth,   // Actual media width
-    height: actualHeight, // Actual media height
-    type: sourceType,     // Source type: 'webcam', 'video', or 'image'
+    element,       // HTMLVideoElement or HTMLImageElement
+    stream,        // MediaStream (for webcam) or null
+    width,         // Actual media width
+    height,        // Actual media height
+    type,          // 'webcam' | 'video' | 'image'
   };
 }
 ```
 
-### Profile Plugin Interface
+Available source plugins in this repository:
 
-Profile plugins should set device profile resources:
+- plugins/source/webcam.js – getUserMedia-based capture
+- plugins/source/video.js – File/URL-based HTMLVideoElement playback
+- plugins/source/image.js – Static HTMLImageElement loading
+
+Example (webcam):
 
 ```javascript
-async init(context) {
-  const profile = this.detectProfile();
-  context.ecs.setResource(RESOURCES.DEVICE_PROFILE, profile);
-}
+import { Engine } from "../../src/core/engine.js";
+import { webcamPlugin } from "../../plugins/source/webcam.js";
+
+const engine = new Engine();
+await webcamPlugin.init(engine.getContext());
+
+const frame = await webcamPlugin.capture(
+  {
+    sourceWidth: 640,
+    sourceHeight: 480,
+    displayWidth: 640,
+    displayHeight: 480,
+  },
+  engine.getContext(),
+);
+
+// Video element is appended by the plugin; you can also use frame.element directly.
+console.log("Webcam source:", frame);
 ```
 
-## Plugin Categories
+Example (image):
 
-- **source** - Media capture and frame sources
-- **profile** - Performance and device configuration
-- **tracking** - AR tracking backends (future)
-- **render** - Rendering systems (future)
+```javascript
+import { imagePlugin } from "../../plugins/source/image.js";
+
+await imagePlugin.init(engine.getContext());
+
+const frame = await imagePlugin.capture(
+  {
+    sourceUrl: "https://example.com/picture.jpg",
+    sourceWidth: 640,
+    sourceHeight: 480,
+    displayWidth: 640,
+    displayHeight: 480,
+  },
+  engine.getContext(),
+);
+
+console.log("Image source:", frame);
+```
+
+## Profile Plugins
+
+Profile plugins compute and publish device profiles and processing parameters into ECS resources. A typical profile plugin detects device class (mobile vs desktop) and sets performance-related hints.
+
+Minimal example:
+
+```javascript
+export const defaultProfilePlugin = {
+  id: "profile:default",
+  name: "Default Profile",
+  type: "profile",
+
+  async init(context) {
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+    const profile = {
+      label: isMobile ? "phone-normal" : "desktop-normal",
+      sourceWidth: 640,
+      sourceHeight: 480,
+      displayWidth: 640,
+      displayHeight: 480,
+    };
+    context.ecs.setResource("DeviceProfile", profile);
+    // Optionally emit profile-updated event
+    context.eventBus.emit("profile:applied", { profile });
+  },
+
+  async dispose() {
+    // Cleanup if needed
+  },
+};
+```
 
 ## See Also
 
-- [ECS Architecture Documentation](../docs/ECS_ARCHITECTURE.md)
-- [Minimal Example](../examples/minimal/)
+- ECS Architecture Documentation (docs/ECS_ARCHITECTURE.md)
+- Examples:
+  - Examples Index: ../examples/index.html
+  - Minimal: ../examples/minimal/index.html
+  - Image Source: ../examples/basic-ecs/image-example.html
