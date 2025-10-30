@@ -107,6 +107,8 @@
       const profile = engine.ecs.getResource(ResourceType.DEVICE_PROFILE);
 
       // Create capture system with webcam
+      // Note: CaptureSystem is event-driven (init-based) rather than frame-driven,
+      // so it doesn't need to be added as a system to the engine
       const captureSystem = new CaptureSystem({
         sourceType: "webcam",
         sourceWidth: profile ? profile.sourceWidth : 640,
@@ -115,7 +117,7 @@
         displayHeight: profile ? profile.displayHeight : 480,
       });
 
-      // Frame counter system
+      // Frame counter system (demonstrates frame-driven system)
       let frameCount = 0;
       function frameCounterSystem(engine, deltaTime) {
         frameCount++;
@@ -156,11 +158,24 @@
         profileEl.textContent = data.profile.profileLabel;
       });
 
-      // Button handlers
-      startBtn.addEventListener("click", async () => {
+      // Initialization helper
+      async function initializeEngine() {
         startBtn.disabled = true;
-        await captureSystem.init(engine);
-        engine.start();
+        try {
+          await captureSystem.init(engine);
+          engine.start();
+        } catch (error) {
+          console.error("Error starting:", error);
+          startBtn.disabled = false;
+          throw error;
+        }
+      }
+
+      // Button handlers
+      startBtn.addEventListener("click", () => {
+        initializeEngine().catch((err) =>
+          console.error("Initialization failed:", err),
+        );
       });
 
       stopBtn.addEventListener("click", () => {
@@ -180,7 +195,9 @@
       // Auto-start
       startBtn.disabled = false;
       setTimeout(() => {
-        startBtn.click();
+        initializeEngine().catch((err) =>
+          console.error("Auto-start failed:", err),
+        );
       }, 500);
     </script>
   </body>

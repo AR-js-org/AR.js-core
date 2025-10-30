@@ -106,6 +106,8 @@
       const profile = engine.ecs.getResource(ResourceType.DEVICE_PROFILE);
 
       // Create capture system with image
+      // Note: CaptureSystem is event-driven (init-based) rather than frame-driven,
+      // so it doesn't need to be added as a system to the engine
       const captureSystem = new CaptureSystem({
         sourceType: "image",
         sourceUrl: testImageDataURL,
@@ -115,7 +117,7 @@
         displayHeight: profile ? profile.displayHeight : 480,
       });
 
-      // Simple logging system
+      // Simple logging system (demonstrates frame-driven system)
       let updateCount = 0;
       function loggingSystem(engine, deltaTime) {
         updateCount++;
@@ -171,8 +173,8 @@
         console.log("Engine stopped");
       });
 
-      // Button handlers
-      startBtn.addEventListener("click", async () => {
+      // Initialization helper
+      async function initializeEngine() {
         startBtn.disabled = true;
         try {
           await captureSystem.init(engine);
@@ -182,7 +184,15 @@
           statusEl.textContent = `Error: ${error.message}`;
           statusEl.className = "error";
           startBtn.disabled = false;
+          throw error;
         }
+      }
+
+      // Button handlers
+      startBtn.addEventListener("click", () => {
+        initializeEngine().catch((err) =>
+          console.error("Initialization failed:", err),
+        );
       });
 
       stopBtn.addEventListener("click", () => {
@@ -203,7 +213,9 @@
       startBtn.disabled = false;
       setTimeout(() => {
         console.log("Auto-starting engine...");
-        startBtn.click();
+        initializeEngine().catch((err) =>
+          console.error("Auto-start failed:", err),
+        );
       }, 500);
     </script>
   </body>
