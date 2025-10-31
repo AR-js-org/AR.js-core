@@ -3,11 +3,11 @@ name: Format and Lint
 on:
   pull_request:
   push:
-    branches: [main, dev, 'copilot/**']
+    branches: ['**']
 
 jobs:
   format-lint:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
     steps:
