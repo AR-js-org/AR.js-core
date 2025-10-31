@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ['**']
+    branches: ['**'] # run on pushes to all branches
     paths:
       - 'src/**'
       - 'plugins/**'
@@ -13,28 +13,24 @@ on:
       - 'vitest.config.js'
       - '.github/workflows/**'
   pull_request:
-    branches: ['**']
+    branches: ['**'] # run on PRs against any branch
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # Primary job: use webpack build (stable), then test with coverage.
+  # Primary job: format/lint, webpack build, then tests with coverage.
   build-and-test:
     runs-on: ubuntu-24.04
-    strategy:
-      fail-fast: false
-      matrix:
-        node-version: [22.x] # stick to Node 22 LTS for CI stability
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js (from .nvmrc)
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
@@ -45,8 +41,11 @@ jobs:
             npm install
           fi
 
-      - name: Check formatting
+      - name: Prettier check
         run: npm run format-check
+
+      - name: ESLint
+        run: npm run lint
 
       # Use the webpack build for CI stability (dist via webpack)
       - name: Build (webpack)
@@ -61,7 +60,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: coverage-${{ matrix.node-version }}
+          name: coverage
           path: coverage
           if-no-files-found: ignore
 
@@ -74,10 +73,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 22
+      - name: Setup Node.js (from .nvmrc)
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install dependencies
