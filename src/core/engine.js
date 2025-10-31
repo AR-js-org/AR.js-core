@@ -7,8 +7,17 @@ import { ECS } from './ecs.js';
 import { EventBus } from './event-bus.js';
 import { PluginManager } from './plugin-manager.js';
 import { EVENTS } from './components.js';
+// Keep Engine.REVISION aligned with the package version
+// Bundlers (Vite/Webpack) and Vitest support JSON imports by default.
+import pkg from '../../package.json';
 
 export class Engine {
+  // Library identity/versioning
+  static NAME = '@ar-js-org/ar.js-core';
+  static VERSION = pkg?.version || '0.0.0-dev';
+  // Back-compat friendly alias (similar to old Context.REVISION)
+  static REVISION = Engine.VERSION;
+
   constructor() {
     this.ecs = new ECS();
     this.eventBus = new EventBus();
