@@ -23,7 +23,7 @@ const engine = new Engine();
 engine.pluginManager.register(webcamPlugin.id, webcamPlugin);
 engine.pluginManager.register(defaultProfilePlugin.id, defaultProfilePlugin);
 
-// Enable profile plugin
+// Enable profile plugin (computes capability-based profile)
 await engine.pluginManager.enable(defaultProfilePlugin.id, engine.getContext());
 
 // Initialize webcam capture
@@ -50,9 +50,9 @@ engine.start();
 
 ### Documentation
 
-- ECS Architecture Guide (docs/ECS_ARCHITECTURE.md) - Complete documentation
-- Plugins Guide (plugins/README.md) - Plugin contract, lifecycle, and events
-- Minimal Example (examples/minimal/) - Working example application
+- ECS Architecture Guide (docs/ECS_ARCHITECTURE.md)
+- Plugins Guide (plugins/README.md) — Plugin contract, lifecycle, events, and device profile migration (QUALITY_TIERS)
+- Examples Index (examples/index.html)
 
 ### Running Examples
 
