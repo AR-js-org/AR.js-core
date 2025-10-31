@@ -2,22 +2,21 @@ name: Format and Lint
 
 on:
   pull_request:
-  push:
-    branches: ['**']
+  push:  # trigger on pushes to all branches
+    branches:
+      - '**'
 
 jobs:
   format-lint:
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Use Node
+      - name: Use Node (from .nvmrc)
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: npm
 
       - name: Install
