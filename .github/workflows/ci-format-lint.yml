@@ -1,0 +1,28 @@
+name: Format and Lint
+
+on:
+  pull_request:
+  push:
+    branches: [main, dev, 'copilot/**']
+
+jobs:
+  format-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Prettier check
+        run: npm run format-check
+
+      - name: ESLint
+        run: npm run lint
