@@ -2,18 +2,18 @@ name: CI
 
 on:
   push:
-    branches: ["**"]
+    branches: ['**']
     paths:
-      - "src/**"
-      - "plugins/**"
-      - "examples/**"
-      - "tests/**"
-      - "package.json"
-      - "vite.config.js"
-      - "vitest.config.js"
-      - ".github/workflows/**"
+      - 'src/**'
+      - 'plugins/**'
+      - 'examples/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'vite.config.js'
+      - 'vitest.config.js'
+      - '.github/workflows/**'
   pull_request:
-    branches: ["**"]
+    branches: ['**']
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node-version: [20.x] # stick to Node 20 LTS for CI stability
+        node-version: [22.x] # stick to Node 22 LTS for CI stability
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -74,10 +74,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 22
         uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 22.x
           cache: npm
 
       - name: Install dependencies
@@ -101,4 +101,4 @@ jobs:
         run: npm run build:vite
         env:
           # Ask rollup to use JS fallback if native optional dep is still missing
-          ROLLUP_SKIP_NODEJS_NATIVE: "1"
+          ROLLUP_SKIP_NODEJS_NATIVE: '1'

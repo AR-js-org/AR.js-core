@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { Engine } from "../src/core/engine.js";
-import { EVENTS } from "../src/core/components.js";
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { Engine } from '../src/core/engine.js';
+import { EVENTS } from '../src/core/components.js';
 
-describe("Engine", () => {
+describe('Engine', () => {
   let engine;
 
   beforeEach(() => {
@@ -13,7 +13,7 @@ describe("Engine", () => {
     await engine.dispose();
   });
 
-  it("emits ENGINE_START and runs systems on RAF", async () => {
+  it('emits ENGINE_START and runs systems on RAF', async () => {
     vi.useFakeTimers();
     const started = vi.fn();
     engine.eventBus.on(EVENTS.ENGINE_START, started);
@@ -34,7 +34,7 @@ describe("Engine", () => {
     vi.useRealTimers();
   });
 
-  it("emits ENGINE_STOP when stopped and halts updates", async () => {
+  it('emits ENGINE_STOP when stopped and halts updates', async () => {
     vi.useFakeTimers();
     const stopped = vi.fn();
     engine.eventBus.on(EVENTS.ENGINE_STOP, stopped);
@@ -58,7 +58,7 @@ describe("Engine", () => {
     vi.useRealTimers();
   });
 
-  it("emits ENGINE_UPDATE each frame", async () => {
+  it('emits ENGINE_UPDATE each frame', async () => {
     vi.useFakeTimers();
     const updates = vi.fn();
     engine.eventBus.on(EVENTS.ENGINE_UPDATE, updates);

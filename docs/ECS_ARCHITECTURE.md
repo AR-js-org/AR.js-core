@@ -19,7 +19,7 @@ The Engine orchestrates the entire system, managing:
 **Usage:**
 
 ```javascript
-import { Engine } from "ar.js-core";
+import { Engine } from 'ar.js-core';
 
 const engine = new Engine();
 engine.start(); // Start the game loop
@@ -38,8 +38,8 @@ Minimal Entity-Component-System implementation:
 
 ```javascript
 const entityId = engine.ecs.createEntity();
-engine.ecs.setComponent(entityId, "Transform", { x: 0, y: 0, z: 0 });
-engine.ecs.setResource("ProcessingConfig", { threshold: 0.5 });
+engine.ecs.setComponent(entityId, 'Transform', { x: 0, y: 0, z: 0 });
+engine.ecs.setResource('ProcessingConfig', { threshold: 0.5 });
 ```
 
 ### Event Bus (`src/core/event-bus.js`)
@@ -50,12 +50,12 @@ Lightweight publish-subscribe system for loose coupling:
 
 ```javascript
 // Subscribe to events
-engine.eventBus.on("capture:ready", (data) => {
-  console.log("Capture ready:", data);
+engine.eventBus.on('capture:ready', (data) => {
+  console.log('Capture ready:', data);
 });
 
 // Emit events
-engine.eventBus.emit("custom:event", { message: "Hello" });
+engine.eventBus.emit('custom:event', { message: 'Hello' });
 ```
 
 ### Plugin Manager (`src/core/plugin-manager.js`)
@@ -66,12 +66,12 @@ Manages plugin registration, enabling, and disabling:
 
 ```javascript
 // Register a plugin
-engine.pluginManager.register("my-plugin", {
+engine.pluginManager.register('my-plugin', {
   async init(context) {
-    console.log("Plugin initialized");
+    console.log('Plugin initialized');
   },
   async dispose() {
-    console.log("Plugin disposed");
+    console.log('Plugin disposed');
   },
   update(deltaTime, context) {
     // Called each frame
@@ -79,7 +79,7 @@ engine.pluginManager.register("my-plugin", {
 });
 
 // Enable the plugin
-await engine.pluginManager.enable("my-plugin", engine.getContext());
+await engine.pluginManager.enable('my-plugin', engine.getContext());
 ```
 
 ## Systems
@@ -91,7 +91,7 @@ Manages video/image capture from various sources:
 **Usage:**
 
 ```javascript
-import { CaptureSystem, SOURCE_TYPES } from "ar.js-core";
+import { CaptureSystem, SOURCE_TYPES } from 'ar.js-core';
 
 await CaptureSystem.initialize(
   {
@@ -154,13 +154,13 @@ Profiles:
 **Usage:**
 
 ```javascript
-import { defaultProfilePlugin } from "./plugins/profile/default-policy.js";
+import { defaultProfilePlugin } from './plugins/profile/default-policy.js';
 
 engine.pluginManager.register(defaultProfilePlugin.id, defaultProfilePlugin);
 await engine.pluginManager.enable(defaultProfilePlugin.id, engine.getContext());
 
 const profile = engine.ecs.getResource(RESOURCES.DEVICE_PROFILE);
-console.log("Device profile:", profile.label);
+console.log('Device profile:', profile.label);
 ```
 
 ## Component and Resource Keys
@@ -168,7 +168,7 @@ console.log("Device profile:", profile.label);
 Standardized keys are defined in `src/core/components.js`:
 
 ```javascript
-import { COMPONENTS, RESOURCES, EVENTS } from "ar.js-core";
+import { COMPONENTS, RESOURCES, EVENTS } from 'ar.js-core';
 
 // Component keys (entity-specific)
 COMPONENTS.TRACKING_TARGET;
@@ -193,9 +193,9 @@ Plugins are simple objects with lifecycle methods:
 
 ```javascript
 const myPlugin = {
-  id: "my-plugin",
-  name: "My Custom Plugin",
-  type: "custom",
+  id: 'my-plugin',
+  name: 'My Custom Plugin',
+  type: 'custom',
 
   // Called when plugin is enabled
   async init(context) {
@@ -227,10 +227,10 @@ function mySystem(deltaTime, context) {
   const { ecs, eventBus } = context;
 
   // Query entities with specific components
-  const entities = ecs.query("Transform", "Visible");
+  const entities = ecs.query('Transform', 'Visible');
 
   for (const entityId of entities) {
-    const transform = ecs.getComponent(entityId, "Transform");
+    const transform = ecs.getComponent(entityId, 'Transform');
     // Process entity
   }
 }
@@ -294,10 +294,10 @@ The legacy `Source` and `Profile` classes remain unchanged and continue to work 
 
 ```javascript
 // Legacy API (still works)
-import { Source, Profile } from "ar.js-core";
+import { Source, Profile } from 'ar.js-core';
 
 // New ECS API
-import { Engine, CaptureSystem } from "ar.js-core";
+import { Engine, CaptureSystem } from 'ar.js-core';
 ```
 
 Future versions may add adapters that allow the legacy classes to use the new ECS internals while maintaining the same external API.
@@ -309,20 +309,20 @@ Future versions may add adapters that allow the legacy classes to use the new EC
 **Before:**
 
 ```javascript
-import { Source } from "ar.js-core";
+import { Source } from 'ar.js-core';
 
 const source = new Source({
-  sourceType: "webcam",
+  sourceType: 'webcam',
   sourceWidth: 640,
   sourceHeight: 480,
 });
 
 source.init(
   () => {
-    console.log("Source ready");
+    console.log('Source ready');
   },
   (error) => {
-    console.error("Source error:", error);
+    console.error('Source error:', error);
   },
 );
 ```
@@ -330,18 +330,18 @@ source.init(
 **After:**
 
 ```javascript
-import { Engine, CaptureSystem, SOURCE_TYPES } from "ar.js-core";
-import { webcamPlugin } from "./plugins/source/webcam.js";
+import { Engine, CaptureSystem, SOURCE_TYPES } from 'ar.js-core';
+import { webcamPlugin } from './plugins/source/webcam.js';
 
 const engine = new Engine();
 engine.pluginManager.register(webcamPlugin.id, webcamPlugin);
 
-engine.eventBus.on("capture:ready", () => {
-  console.log("Source ready");
+engine.eventBus.on('capture:ready', () => {
+  console.log('Source ready');
 });
 
-engine.eventBus.on("capture:init:error", ({ error }) => {
-  console.error("Source error:", error);
+engine.eventBus.on('capture:init:error', ({ error }) => {
+  console.error('Source error:', error);
 });
 
 await CaptureSystem.initialize(

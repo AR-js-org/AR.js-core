@@ -3,26 +3,26 @@
  * Demonstrates the new ECS architecture with plugins
  */
 
-import { Engine } from "../../src/core/engine.js";
-import { CaptureSystem } from "../../src/systems/capture-system.js";
-import { webcamPlugin } from "../../plugins/source/webcam.js";
-import { videoPlugin } from "../../plugins/source/video.js";
-import { imagePlugin } from "../../plugins/source/image.js";
-import { defaultProfilePlugin } from "../../plugins/profile/default-policy.js";
-import { EVENTS, RESOURCES, SOURCE_TYPES } from "../../src/core/components.js";
+import { Engine } from '../../src/core/engine.js';
+import { CaptureSystem } from '../../src/systems/capture-system.js';
+import { webcamPlugin } from '../../plugins/source/webcam.js';
+import { videoPlugin } from '../../plugins/source/video.js';
+import { imagePlugin } from '../../plugins/source/image.js';
+import { defaultProfilePlugin } from '../../plugins/profile/default-policy.js';
+import { EVENTS, RESOURCES, SOURCE_TYPES } from '../../src/core/components.js';
 
 // Create the engine
 const engine = new Engine();
 
 // Get references to UI elements
-const statusIndicator = document.getElementById("status-indicator");
-const statusText = document.getElementById("status-text");
-const deviceProfileText = document.getElementById("device-profile");
-const sourceTypeText = document.getElementById("source-type");
-const fpsText = document.getElementById("fps");
-const errorMessage = document.getElementById("error-message");
-const btnWebcam = document.getElementById("btn-webcam");
-const btnStop = document.getElementById("btn-stop");
+const statusIndicator = document.getElementById('status-indicator');
+const statusText = document.getElementById('status-text');
+const deviceProfileText = document.getElementById('device-profile');
+const sourceTypeText = document.getElementById('source-type');
+const fpsText = document.getElementById('fps');
+const errorMessage = document.getElementById('error-message');
+const btnWebcam = document.getElementById('btn-webcam');
+const btnStop = document.getElementById('btn-stop');
 
 // FPS tracking
 let frameCount = 0;
@@ -45,27 +45,27 @@ if (profile) {
 
 // Set up event listeners
 engine.eventBus.on(EVENTS.CAPTURE_INIT_START, () => {
-  updateStatus("loading", "Initializing capture...");
-  errorMessage.textContent = "";
+  updateStatus('loading', 'Initializing capture...');
+  errorMessage.textContent = '';
 });
 
 engine.eventBus.on(EVENTS.CAPTURE_READY, ({ frameSource }) => {
-  updateStatus("ready", "Capture ready");
+  updateStatus('ready', 'Capture ready');
   sourceTypeText.textContent = frameSource.type;
   btnWebcam.disabled = true;
   btnStop.disabled = false;
 });
 
 engine.eventBus.on(EVENTS.CAPTURE_INIT_ERROR, ({ error }) => {
-  updateStatus("error", "Capture failed");
-  errorMessage.textContent = `Error: ${error.message || "Unknown error"}`;
+  updateStatus('error', 'Capture failed');
+  errorMessage.textContent = `Error: ${error.message || 'Unknown error'}`;
   btnWebcam.disabled = false;
   btnStop.disabled = true;
 });
 
 engine.eventBus.on(EVENTS.CAPTURE_DISPOSED, () => {
-  updateStatus("loading", "Capture stopped");
-  sourceTypeText.textContent = "N/A";
+  updateStatus('loading', 'Capture stopped');
+  sourceTypeText.textContent = 'N/A';
   btnWebcam.disabled = false;
   btnStop.disabled = true;
 });
@@ -82,7 +82,7 @@ engine.addSystem((deltaTime, context) => {
 });
 
 // Button event handlers
-btnWebcam.addEventListener("click", async () => {
+btnWebcam.addEventListener('click', async () => {
   try {
     const profile = engine.ecs.getResource(RESOURCES.DEVICE_PROFILE);
     await CaptureSystem.initialize(
@@ -99,11 +99,11 @@ btnWebcam.addEventListener("click", async () => {
     // Start the engine
     engine.start();
   } catch (error) {
-    console.error("Failed to start webcam:", error);
+    console.error('Failed to start webcam:', error);
   }
 });
 
-btnStop.addEventListener("click", async () => {
+btnStop.addEventListener('click', async () => {
   try {
     // Stop the engine
     engine.stop();
@@ -111,7 +111,7 @@ btnStop.addEventListener("click", async () => {
     // Dispose capture system
     await CaptureSystem.dispose(engine.getContext());
   } catch (error) {
-    console.error("Failed to stop:", error);
+    console.error('Failed to stop:', error);
   }
 });
 
@@ -123,8 +123,8 @@ function updateStatus(state, text) {
 
 // Initial state
 btnStop.disabled = true;
-updateStatus("loading", "Ready to start");
+updateStatus('loading', 'Ready to start');
 
-console.log("AR.js Core initialized with ECS architecture");
-console.log("Registered plugins:", engine.pluginManager.getRegisteredPlugins());
-console.log("Device profile:", profile);
+console.log('AR.js Core initialized with ECS architecture');
+console.log('Registered plugins:', engine.pluginManager.getRegisteredPlugins());
+console.log('Device profile:', profile);

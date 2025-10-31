@@ -14,9 +14,9 @@ AR.js Core now includes a modern Entity-Component-System (ECS) architecture with
 ### Quick Start with ECS
 
 ```javascript
-import { Engine, CaptureSystem, SOURCE_TYPES } from "ar.js-core";
-import { webcamPlugin } from "./plugins/source/webcam.js";
-import { defaultProfilePlugin } from "./plugins/profile/default-policy.js";
+import { Engine, CaptureSystem, SOURCE_TYPES } from 'ar.js-core';
+import { webcamPlugin } from './plugins/source/webcam.js';
+import { defaultProfilePlugin } from './plugins/profile/default-policy.js';
 
 // Create engine and register plugins
 const engine = new Engine();
@@ -94,7 +94,7 @@ If the camera doesn’t start automatically, click or tap once to allow autoplay
 The original Source and Profile classes are still available and fully supported:
 
 ```javascript
-import { Source, Profile } from "ar.js-core";
+import { Source, Profile } from 'arjs-core';
 ```
 
 See existing documentation for legacy API usage.

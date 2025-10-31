@@ -4,12 +4,7 @@
  * and writes FrameSourceRef + CaptureState resources
  */
 
-import {
-  RESOURCES,
-  EVENTS,
-  CAPTURE_STATES,
-  SOURCE_TYPES,
-} from "../core/components.js";
+import { RESOURCES, EVENTS, CAPTURE_STATES, SOURCE_TYPES } from '../core/components.js';
 
 export class CaptureSystem {
   /**
@@ -39,13 +34,13 @@ export class CaptureSystem {
 
       switch (sourceType) {
         case SOURCE_TYPES.WEBCAM:
-          pluginId = "source:webcam";
+          pluginId = 'source:webcam';
           break;
         case SOURCE_TYPES.VIDEO:
-          pluginId = "source:video";
+          pluginId = 'source:video';
           break;
         case SOURCE_TYPES.IMAGE:
-          pluginId = "source:image";
+          pluginId = 'source:image';
           break;
         default:
           throw new Error(`Unknown source type: ${sourceType}`);
@@ -66,7 +61,7 @@ export class CaptureSystem {
 
       // Get the plugin and call its capture method
       const plugin = pluginManager.getPlugin(pluginId);
-      if (!plugin || typeof plugin.capture !== "function") {
+      if (!plugin || typeof plugin.capture !== 'function') {
         throw new Error(`Plugin ${pluginId} does not have a capture method`);
       }
 
@@ -93,12 +88,12 @@ export class CaptureSystem {
 
       return frameSource;
     } catch (error) {
-      console.error("Capture initialization failed:", error);
+      console.error('Capture initialization failed:', error);
 
       // Update capture state to error
       ecs.setResource(RESOURCES.CAPTURE_STATE, {
         state: CAPTURE_STATES.ERROR,
-        error: error.message || "Unknown error",
+        error: error.message || 'Unknown error',
       });
 
       eventBus.emit(EVENTS.CAPTURE_INIT_ERROR, { error });
@@ -117,7 +112,7 @@ export class CaptureSystem {
     const frameSourceRef = ecs.getResource(RESOURCES.FRAME_SOURCE_REF);
 
     // Disable source plugins
-    const sourcePlugins = ["source:webcam", "source:video", "source:image"];
+    const sourcePlugins = ['source:webcam', 'source:video', 'source:image'];
     for (const pluginId of sourcePlugins) {
       if (pluginManager.isEnabled(pluginId)) {
         await pluginManager.disable(pluginId);

@@ -1,4 +1,4 @@
-import { setParameters } from "./functions/utils";
+import { setParameters } from './functions/utils';
 
 export default class Source {
   constructor(parameters) {
@@ -8,7 +8,7 @@ export default class Source {
     // handle default parameters
     this.parameters = {
       // type of source - ['webcam', 'image', 'video']
-      sourceType: "webcam",
+      sourceType: 'webcam',
       // url of the source - valid if sourceType = image|video
       sourceUrl: null,
 
@@ -36,11 +36,11 @@ export default class Source {
     let domElement;
     const _this = this;
 
-    if (this.parameters.sourceType === "image") {
+    if (this.parameters.sourceType === 'image') {
       domElement = this.#initSourceImage(onSourceReady, onError);
-    } else if (this.parameters.sourceType === "video") {
+    } else if (this.parameters.sourceType === 'video') {
       domElement = this.#initSourceVideo(onSourceReady, onError);
-    } else if (this.parameters.sourceType === "webcam") {
+    } else if (this.parameters.sourceType === 'webcam') {
       // var domElement = this._initSourceWebcamOld(onSourceReady)
       domElement = this.#initSourceWebcam(onSourceReady, onError);
     } else {
@@ -49,11 +49,11 @@ export default class Source {
 
     // attach
     this.domElement = domElement;
-    this.domElement.style.position = "absolute";
-    this.domElement.style.top = "0px";
-    this.domElement.style.left = "0px";
-    this.domElement.style.zIndex = "-2";
-    this.domElement.setAttribute("id", "arjs-video");
+    this.domElement.style.position = 'absolute';
+    this.domElement.style.top = '0px';
+    this.domElement.style.left = '0px';
+    this.domElement.style.zIndex = '-2';
+    this.domElement.setAttribute('id', 'arjs-video');
 
     return this;
 
@@ -64,9 +64,9 @@ export default class Source {
 
       document.body.appendChild(_this.domElement);
       window.dispatchEvent(
-        new CustomEvent("arjs-video-loaded", {
+        new CustomEvent('arjs-video-loaded', {
           detail: {
-            component: document.querySelector("#arjs-video"),
+            component: document.querySelector('#arjs-video'),
           },
         }),
       );
@@ -79,13 +79,13 @@ export default class Source {
 
   #initSourceImage(onReady) {
     // TODO make it static
-    const domElement = document.createElement("img");
+    const domElement = document.createElement('img');
     domElement.src = this.parameters.sourceUrl;
 
     domElement.width = this.parameters.sourceWidth;
     domElement.height = this.parameters.sourceHeight;
-    domElement.style.width = this.parameters.displayWidth + "px";
-    domElement.style.height = this.parameters.displayHeight + "px";
+    domElement.style.width = this.parameters.displayWidth + 'px';
+    domElement.style.height = this.parameters.displayHeight + 'px';
 
     domElement.onload = onReady;
     return domElement;
@@ -93,10 +93,10 @@ export default class Source {
 
   #initSourceVideo = function (onReady) {
     // TODO make it static
-    const domElement = document.createElement("video");
+    const domElement = document.createElement('video');
     domElement.src = this.parameters.sourceUrl;
 
-    domElement.style.objectFit = "initial";
+    domElement.style.objectFit = 'initial';
 
     domElement.autoplay = true;
     domElement.webkitPlaysinline = true;
@@ -105,14 +105,14 @@ export default class Source {
     domElement.muted = true;
 
     // start the video on first click if not started automatically
-    document.body.addEventListener("click", this.onInitialClick, {
+    document.body.addEventListener('click', this.onInitialClick, {
       once: true,
     });
 
     domElement.width = this.parameters.sourceWidth;
     domElement.height = this.parameters.sourceHeight;
-    domElement.style.width = this.parameters.displayWidth + "px";
-    domElement.style.height = this.parameters.displayHeight + "px";
+    domElement.style.width = this.parameters.displayWidth + 'px';
+    domElement.style.height = this.parameters.displayHeight + 'px';
 
     domElement.onloadeddata = onReady;
     return domElement;
@@ -126,29 +126,26 @@ export default class Source {
     onError =
       onError ||
       function (error) {
-        const event = new CustomEvent("camera-error", { error: error });
+        const event = new CustomEvent('camera-error', { error: error });
         window.dispatchEvent(event);
 
         setTimeout(() => {
-          if (!document.getElementById("error-popup")) {
-            const errorPopup = document.createElement("div");
+          if (!document.getElementById('error-popup')) {
+            const errorPopup = document.createElement('div');
             errorPopup.innerHTML =
-              "Webcam Error\nName: " +
-              error.name +
-              "\nMessage: " +
-              error.message;
-            errorPopup.setAttribute("id", "error-popup");
+              'Webcam Error\nName: ' + error.name + '\nMessage: ' + error.message;
+            errorPopup.setAttribute('id', 'error-popup');
             document.body.appendChild(errorPopup);
           }
         }, 1000);
       };
 
-    const domElement = document.createElement("video");
-    domElement.setAttribute("autoplay", "");
-    domElement.setAttribute("muted", "");
-    domElement.setAttribute("playsinline", "");
-    domElement.style.width = this.parameters.displayWidth + "px";
-    domElement.style.height = this.parameters.displayHeight + "px";
+    const domElement = document.createElement('video');
+    domElement.setAttribute('autoplay', '');
+    domElement.setAttribute('muted', '');
+    domElement.setAttribute('playsinline', '');
+    domElement.style.width = this.parameters.displayWidth + 'px';
+    domElement.style.height = this.parameters.displayHeight + 'px';
 
     // check API is available
     if (
@@ -157,15 +154,15 @@ export default class Source {
       navigator.mediaDevices.getUserMedia === undefined
     ) {
       if (navigator.mediaDevices === undefined) {
-        fctName = "navigator.mediaDevices";
+        fctName = 'navigator.mediaDevices';
       } else if (navigator.mediaDevices.enumerateDevices === undefined) {
-        fctName = "navigator.mediaDevices.enumerateDevices";
+        fctName = 'navigator.mediaDevices.enumerateDevices';
       } else if (navigator.mediaDevices.getUserMedia === undefined) {
-        fctName = "navigator.mediaDevices.getUserMedia";
+        fctName = 'navigator.mediaDevices.getUserMedia';
       } else console.assert(false);
       onError({
-        name: "",
-        message: "WebRTC issue-! " + fctName + " not present in your browser",
+        name: '',
+        message: 'WebRTC issue-! ' + fctName + ' not present in your browser',
       });
       return null;
     }
@@ -177,7 +174,7 @@ export default class Source {
         const userMediaConstraints = {
           audio: false,
           video: {
-            facingMode: "environment",
+            facingMode: 'environment',
             width: {
               ideal: _this.parameters.sourceWidth,
               // min: 1024,
@@ -204,11 +201,11 @@ export default class Source {
             // set the .src of the domElement
             domElement.srcObject = stream;
 
-            const event = new CustomEvent("camera-init", { stream: stream });
+            const event = new CustomEvent('camera-init', { stream: stream });
             window.dispatchEvent(event);
 
             // start the video on first click if not started automatically
-            document.body.addEventListener("click", _this.onInitialClick, {
+            document.body.addEventListener('click', _this.onInitialClick, {
               once: true,
             });
 
@@ -234,22 +231,22 @@ export default class Source {
     this.ready = false;
 
     switch (this.parameters.sourceType) {
-      case "image":
+      case 'image':
         this.#disposeSourceImage();
         break;
 
-      case "video":
+      case 'video':
         this.#disposeSourceVideo();
         break;
 
-      case "webcam":
+      case 'webcam':
         this.#disposeSourceWebcam();
         break;
     }
 
     this.domElement = null;
 
-    document.body.removeEventListener("click", this.onInitialClick, {
+    document.body.removeEventListener('click', this.onInitialClick, {
       once: true,
     });
   }
@@ -259,7 +256,7 @@ export default class Source {
   ////////////////////////////////////////////////////////////////////////////////
 
   #disposeSourceImage() {
-    const domElement = document.querySelector("#arjs-video");
+    const domElement = document.querySelector('#arjs-video');
 
     if (!domElement) {
       return;
@@ -273,7 +270,7 @@ export default class Source {
   ////////////////////////////////////////////////////////////////////////////////
 
   #disposeSourceVideo() {
-    const domElement = document.querySelector("#arjs-video");
+    const domElement = document.querySelector('#arjs-video');
 
     if (!domElement) {
       return;
@@ -281,7 +278,7 @@ export default class Source {
 
     // https://html.spec.whatwg.org/multipage/media.html#best-practices-for-authors-using-media-elements
     domElement.pause();
-    domElement.removeAttribute("src");
+    domElement.removeAttribute('src');
     domElement.load();
 
     domElement.remove();
@@ -292,7 +289,7 @@ export default class Source {
   ////////////////////////////////////////////////////////////////////////////////
 
   #disposeSourceWebcam() {
-    const domElement = document.querySelector("#arjs-video");
+    const domElement = document.querySelector('#arjs-video');
 
     if (!domElement) {
       return;
@@ -338,11 +335,10 @@ export default class Source {
 
     const stream = this.domElement.srcObject;
     if (stream instanceof MediaStream === false) {
-      if (!document.getElementById("error-popup")) {
-        errorPopup = document.createElement("div");
-        errorPopup.innerHTML =
-          "enabling mobile torch is available only on webcam";
-        errorPopup.setAttribute("id", "error-popup");
+      if (!document.getElementById('error-popup')) {
+        errorPopup = document.createElement('div');
+        errorPopup.innerHTML = 'enabling mobile torch is available only on webcam';
+        errorPopup.setAttribute('id', 'error-popup');
         document.body.appendChild(errorPopup);
       }
       return;
@@ -356,17 +352,16 @@ export default class Source {
     const capabilities = videoTrack.getCapabilities();
 
     if (!capabilities.torch) {
-      if (!document.getElementById("error-popup")) {
-        errorPopup = document.createElement("div");
-        errorPopup.innerHTML = "no mobile torch is available on your camera";
-        errorPopup.setAttribute("id", "error-popup");
+      if (!document.getElementById('error-popup')) {
+        errorPopup = document.createElement('div');
+        errorPopup.innerHTML = 'no mobile torch is available on your camera';
+        errorPopup.setAttribute('id', 'error-popup');
         document.body.appendChild(errorPopup);
       }
       return;
     }
 
-    this._currentTorchStatus =
-      this._currentTorchStatus === false ? true : false;
+    this._currentTorchStatus = this._currentTorchStatus === false ? true : false;
     videoTrack
       .applyConstraints({
         advanced: [
@@ -402,10 +397,10 @@ export default class Source {
     console.assert(arguments.length === 0);
 
     // compute sourceWidth, sourceHeight
-    if (this.domElement.nodeName === "IMG") {
+    if (this.domElement.nodeName === 'IMG') {
       sourceWidth = this.domElement.naturalWidth;
       sourceHeight = this.domElement.naturalHeight;
-    } else if (this.domElement.nodeName === "VIDEO") {
+    } else if (this.domElement.nodeName === 'VIDEO') {
       sourceWidth = this.domElement.videoWidth;
       sourceHeight = this.domElement.videoHeight;
     } else {
@@ -421,21 +416,21 @@ export default class Source {
     if (screenAspect < sourceAspect) {
       // compute newWidth and set .width/.marginLeft
       const newWidth = sourceAspect * screenHeight;
-      this.domElement.style.width = newWidth + "px";
-      this.domElement.style.marginLeft = -(newWidth - screenWidth) / 2 + "px";
+      this.domElement.style.width = newWidth + 'px';
+      this.domElement.style.marginLeft = -(newWidth - screenWidth) / 2 + 'px';
 
       // init style.height/.marginTop to normal value
-      this.domElement.style.height = screenHeight + "px";
-      this.domElement.style.marginTop = "0px";
+      this.domElement.style.height = screenHeight + 'px';
+      this.domElement.style.marginTop = '0px';
     } else {
       // compute newHeight and set .height/.marginTop
       const newHeight = 1 / (sourceAspect / screenWidth);
-      this.domElement.style.height = newHeight + "px";
-      this.domElement.style.marginTop = -(newHeight - screenHeight) / 2 + "px";
+      this.domElement.style.height = newHeight + 'px';
+      this.domElement.style.marginTop = -(newHeight - screenHeight) / 2 + 'px';
 
       // init style.width/.marginLeft to normal value
-      this.domElement.style.width = screenWidth + "px";
-      this.domElement.style.marginLeft = "0px";
+      this.domElement.style.width = screenWidth + 'px';
+      this.domElement.style.marginLeft = '0px';
     }
   }
   /*
@@ -457,10 +452,9 @@ export default class Source {
     } else {
       //portrait
       otherElement.style.height = this.domElement.style.height;
-      otherElement.style.width =
-        (parseInt(otherElement.style.height) * 4) / 3 + "px";
+      otherElement.style.width = (parseInt(otherElement.style.height) * 4) / 3 + 'px';
       otherElement.style.marginLeft =
-        (window.innerWidth - parseInt(otherElement.style.width)) / 2 + "px";
+        (window.innerWidth - parseInt(otherElement.style.width)) / 2 + 'px';
       otherElement.style.marginTop = 0;
     }
   }
@@ -471,7 +465,7 @@ export default class Source {
 
   copySizeTo() {
     console.warn(
-      "obsolete function arToolkitSource.copySizeTo. Use arToolkitSource.copyElementSizeTo",
+      'obsolete function arToolkitSource.copySizeTo. Use arToolkitSource.copyElementSizeTo',
     );
     this.copyElementSizeTo.apply(this, arguments);
   }
@@ -483,7 +477,7 @@ export default class Source {
   onResize(arToolkitContext, renderer, camera) {
     if (arguments.length !== 3) {
       console.warn(
-        "obsolete function arToolkitSource.onResize. Use arToolkitSource.onResizeElement",
+        'obsolete function arToolkitSource.onResize. Use arToolkitSource.onResizeElement',
       );
       return this.onResizeElement.apply(this, arguments);
     }
@@ -491,7 +485,7 @@ export default class Source {
     const trackingBackend = arToolkitContext.parameters.trackingBackend;
 
     // RESIZE DOMELEMENT
-    if (trackingBackend === "artoolkit") {
+    if (trackingBackend === 'artoolkit') {
       this.onResizeElement();
 
       const isAframe = renderer.domElement.dataset.aframeCanvas ? true : false;
@@ -503,15 +497,13 @@ export default class Source {
       if (arToolkitContext.arController !== null) {
         this.copyElementSizeTo(arToolkitContext.arController.canvas);
       }
-    } else
-      console.assert(false, "unhandled trackingBackend " + trackingBackend);
+    } else console.assert(false, 'unhandled trackingBackend ' + trackingBackend);
 
     // UPDATE CAMERA
-    if (trackingBackend === "artoolkit") {
+    if (trackingBackend === 'artoolkit') {
       if (arToolkitContext.arController !== null) {
         camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
       }
-    } else
-      console.assert(false, "unhandled trackingBackend " + trackingBackend);
+    } else console.assert(false, 'unhandled trackingBackend ' + trackingBackend);
   }
 }

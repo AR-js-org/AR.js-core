@@ -19,9 +19,9 @@ A plugin is a simple object with lifecycle methods. All methods are optional, bu
 
 ```javascript
 const myPlugin = {
-  id: "category:name", // Unique identifier (required)
-  name: "My Plugin", // Human-readable name
-  type: "category", // Plugin category
+  id: 'category:name', // Unique identifier (required)
+  name: 'My Plugin', // Human-readable name
+  type: 'category', // Plugin category
 
   // Called when the plugin is enabled (via PluginManager.enable)
   async init(context) {
@@ -87,10 +87,10 @@ Plugin lifecycle:
 Listening to events:
 
 ```javascript
-import { EVENTS } from "../src/core/components.js";
+import { EVENTS } from '../src/core/components.js';
 
 engine.eventBus.on(EVENTS.CAPTURE_READY, ({ frameSource }) => {
-  console.log("Capture ready:", frameSource);
+  console.log('Capture ready:', frameSource);
 });
 ```
 
@@ -99,9 +99,9 @@ engine.eventBus.on(EVENTS.CAPTURE_READY, ({ frameSource }) => {
 Register and enable a plugin:
 
 ```javascript
-import { Engine } from "../src/core/engine.js";
-import { webcamPlugin } from "./source/webcam.js";
-import { defaultProfilePlugin } from "./profile/default-policy.js";
+import { Engine } from '../src/core/engine.js';
+import { webcamPlugin } from './source/webcam.js';
+import { defaultProfilePlugin } from './profile/default-policy.js';
 
 const engine = new Engine();
 
@@ -152,8 +152,8 @@ Available source plugins in this repository:
 Example (webcam):
 
 ```javascript
-import { Engine } from "../../src/core/engine.js";
-import { webcamPlugin } from "../../plugins/source/webcam.js";
+import { Engine } from '../../src/core/engine.js';
+import { webcamPlugin } from '../../plugins/source/webcam.js';
 
 const engine = new Engine();
 await webcamPlugin.init(engine.getContext());
@@ -169,19 +169,19 @@ const frame = await webcamPlugin.capture(
 );
 
 // Video element is appended by the plugin; you can also use frame.element directly.
-console.log("Webcam source:", frame);
+console.log('Webcam source:', frame);
 ```
 
 Example (image):
 
 ```javascript
-import { imagePlugin } from "../../plugins/source/image.js";
+import { imagePlugin } from '../../plugins/source/image.js';
 
 await imagePlugin.init(engine.getContext());
 
 const frame = await imagePlugin.capture(
   {
-    sourceUrl: "https://example.com/picture.jpg",
+    sourceUrl: 'https://example.com/picture.jpg',
     sourceWidth: 640,
     sourceHeight: 480,
     displayWidth: 640,
@@ -190,7 +190,7 @@ const frame = await imagePlugin.capture(
   engine.getContext(),
 );
 
-console.log("Image source:", frame);
+console.log('Image source:', frame);
 ```
 
 ## Profile Plugins
@@ -201,22 +201,22 @@ Minimal example:
 
 ```javascript
 export const defaultProfilePlugin = {
-  id: "profile:default",
-  name: "Default Profile",
-  type: "profile",
+  id: 'profile:default',
+  name: 'Default Profile',
+  type: 'profile',
 
   async init(context) {
     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
     const profile = {
-      label: isMobile ? "phone-normal" : "desktop-normal",
+      label: isMobile ? 'phone-normal' : 'desktop-normal',
       sourceWidth: 640,
       sourceHeight: 480,
       displayWidth: 640,
       displayHeight: 480,
     };
-    context.ecs.setResource("DeviceProfile", profile);
+    context.ecs.setResource('DeviceProfile', profile);
     // Optionally emit profile-updated event
-    context.eventBus.emit("profile:applied", { profile });
+    context.eventBus.emit('profile:applied', { profile });
   },
 
   async dispose() {
@@ -224,6 +224,22 @@ export const defaultProfilePlugin = {
   },
 };
 ```
+
+## Migration note: Device profiles
+
+- Legacy DEVICE_PROFILES (desktop-fast, desktop-normal, phone-normal, phone-slow) remain available for backward compatibility.
+- New QUALITY_TIERS (low, medium, high, ultra) are computed at runtime based on device capabilities and a short micro-benchmark. The default profile plugin writes a structured object to `RESOURCES.DEVICE_PROFILE` with:
+  - `label`: e.g., "auto-high"
+  - `qualityTier`: one of QUALITY_TIERS
+  - `score`: number (0..100)
+  - `caps`: capability signals (cores, memoryGB, webgl2, wasmSIMD, screenLongSide, camera)
+  - `capture`: sizing hints (sourceWidth, sourceHeight, displayWidth, displayHeight, fpsHint)
+  - `processing`: budget hints (budgetMsPerFrame, complexity)
+- Overriding:
+  - To force a legacy profile, call `defaultProfilePlugin.setProfile("<legacy-label>", context)`.
+  - To apply custom app-specific sizing, set your own object to `RESOURCES.DEVICE_PROFILE` after enabling the profile plugin.
+- Compatibility:
+  - The new profile object still includes top-level `label`, `sourceWidth`, `sourceHeight`, `displayWidth`, `displayHeight` to minimize changes in existing examples.
 
 ## See Also
 
