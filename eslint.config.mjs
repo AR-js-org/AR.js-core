@@ -3,13 +3,23 @@ import prettier from 'eslint-config-prettier';
 
 export default [
   {
-    ignores: ['dist/', 'node_modules/', 'coverage/', 'types/'],
+    ignores: [
+      'examples/vite-artoolkit/vendor/**',
+      'examples/vite-artoolkit/data/**',
+      '**/*.dat',
+      '**/*.hiro',
+      '**/*.map',
+      'dist/',
+      'node_modules/',
+      'coverage/',
+      'types/'],
   },
   js.configs.recommended,
   prettier,
   {
+    files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
-      ecmaVersion: 2022,
+      ecmaVersion: 'latest',
       sourceType: 'module',
       globals: {
         // Browser globals
