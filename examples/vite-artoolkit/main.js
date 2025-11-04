@@ -36,10 +36,8 @@ function setStatus(msg, type = 'normal') {
 let engine;
 let ctx;
 let artoolkit;
-let arPluginId;
 let pumping = false;
 let cameraStarted = false;
-let markerLoaded = false;
 
 async function bootstrap() {
   engine = new Engine();
@@ -52,19 +50,11 @@ async function bootstrap() {
   const mod = await import('./vendor/arjs-plugin-artoolkit/arjs-plugin-artoolkit.esm.js');
   const ArtoolkitPlugin = mod.ArtoolkitPlugin || mod.default;
 
-  artoolkit = new ArtoolkitPlugin({
-    cameraParametersUrl: '/examples/vite-artoolkit/data/camera_para.dat',
-    minConfidence: 0.6,
-  });
-
-  arPluginId = artoolkit.id || 'arjs-artoolkit';
-  engine.pluginManager.register(arPluginId, artoolkit);
-
-  // Register events BEFORE enabling to avoid missing early 'ready'
+  // Set up UI listeners BEFORE enable to avoid missing early 'ready'
   engine.eventBus.on('ar:workerReady', () => {
     log('Worker ready');
     setStatus('Worker ready. You can start the webcam and load the marker.', 'success');
-    loadBtn.disabled = false;
+    loadBtn.disabled = false; // allow loading even before camera (matches minimal example)
   });
   engine.eventBus.on('ar:workerError', (e) => {
     log(`workerError: ${JSON.stringify(e)}`);
@@ -75,28 +65,54 @@ async function bootstrap() {
   engine.eventBus.on('ar:markerUpdated', (d) => log(`markerUpdated: ${JSON.stringify(d)}`));
   engine.eventBus.on('ar:markerLost', (d) => log(`markerLost: ${JSON.stringify(d)}`));
 
-  // Enable plugins
+  // Enable core plugins via manager
   ctx = engine.getContext();
   await engine.pluginManager.enable(defaultProfilePlugin.id, ctx);
   await engine.pluginManager.enable(webcamPlugin.id, ctx);
-  await engine.pluginManager.enable(arPluginId, ctx);
 
-  // Start ECS (systems/plugins tick)
+  // Create ARToolKit plugin and wire it EXPLICITLY to this engine context
+  artoolkit = new ArtoolkitPlugin({
+    cameraParametersUrl: '/examples/vite-artoolkit/data/camera_para.dat',
+    minConfidence: 0.6,
+  });
+
+  // IMPORTANT: bind to engine context so events go to engine.eventBus
+  await artoolkit.init(ctx);
+  await artoolkit.enable();
+
+  // Start ECS loop (systems/plugins tick)
   engine.start();
+
+  // Fallback: if worker became ready during enable, honor it
+  if (artoolkit.workerReady) {
+    log('Worker was already ready (post-enable).');
+    setStatus('Worker ready. You can start the webcam and load the marker.', 'success');
+    loadBtn.disabled = false;
+  } else {
+    setStatus('Plugin initialized. Waiting for worker…', 'normal');
+    // Tiny watchdog in case the ready event is missed due to external wiring
+    const t0 = Date.now();
+    const iv = setInterval(() => {
+      if (artoolkit.workerReady) {
+        loadBtn.disabled = false;
+        setStatus('Worker ready. You can start the webcam and load the marker.', 'success');
+        clearInterval(iv);
+      } else if (Date.now() - t0 > 5000) {
+        clearInterval(iv);
+      }
+    }, 100);
+  }
 
   // UI initial state
   startBtn.disabled = false;
   stopBtn.disabled = true;
-  loadBtn.disabled = !artoolkit.workerReady;
-
-  setStatus('Initialized. Click “Start Webcam” to begin streaming frames.', 'normal');
 }
 
 async function startWebcam() {
   if (cameraStarted) return;
   try {
     startBtn.disabled = true;
-    stopBtn.disabled = true; // re-enable after init
+    stopBtn.disabled = true;
     setStatus('Starting webcam…', 'normal');
     log('Initializing webcam capture');
 
@@ -117,10 +133,9 @@ async function startWebcam() {
     }
 
     cameraStarted = true;
-    setStatus('Webcam started. You can load the marker.', 'success');
+    setStatus('Webcam started. You can now show the marker.', 'success');
     log('Webcam started.');
     stopBtn.disabled = false;
-    // Leave loadBtn as-is (enabled when workerReady)
   } catch (err) {
     log('Camera error: ' + (err?.message || err));
     setStatus('Camera error (see console)', 'error');
@@ -162,12 +177,11 @@ async function loadMarker() {
     const res = await artoolkit.loadMarker(patternUrl, 1);
     log(`loadMarker result: ${JSON.stringify(res)}`);
     setStatus(`Marker loaded (id=${res.markerId}). Show the marker to the camera.`, 'success');
-    markerLoaded = true;
   } catch (err) {
     log('loadMarker failed: ' + (err?.message || err));
     setStatus('Failed to load marker', 'error');
   } finally {
-    // Allow re-press in case user wants to reload/replace; or keep disabled if you prefer single load
+    // Re-enable for retry/replace
     loadBtn.disabled = false;
   }
 }
