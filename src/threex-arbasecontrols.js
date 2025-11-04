@@ -1,7 +1,8 @@
-export default class ArBaseControls {
+export default class ArBaseControls extends THREE.EventDispatcher {
   constructor(object3d) {
+    super();
     if (new.target === ArBaseControls) {
-      throw new TypeError("Cannot construct ArBaseControls instances directly");
+      throw new TypeError('Cannot construct ArBaseControls instances directly');
     }
     this.id = ArBaseControls._id++;
     this.object3d = object3d;
@@ -10,15 +11,20 @@ export default class ArBaseControls {
   }
 
   /**
+   * a virtual update method to implement in the derived class.
+   * @return {void}
+   */
+  update(object3d) {
+    throw new Error('You have to implement the method update!');
+  }
+
+  /**
+   * a virtual name method to implement in the derived class.
    * Method to get the name of the marker.
    * @returns {string}
    */
-  update() {
-    throw new Error("You have to implement the method update!");
-  }
-
   name() {
-    throw new Error("You have to implement the method name!");
+    throw new Error('You have to implement the method name!');
   }
 }
 
