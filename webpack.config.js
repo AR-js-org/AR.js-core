@@ -1,14 +1,14 @@
-const path = require("path");
+const path = require('path');
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: './src/index.js',
   output: {
-    path: path.resolve("dist"),
-    filename: "ARjs-core.js",
-    library: "ARjs-core",
-    libraryTarget: "umd",
+    path: path.resolve('dist'),
+    filename: 'arjs-core.js',
+    library: 'ARJSCore',
+    libraryTarget: 'umd',
     // @see: https://github.com/webpack/webpack/issues/3929
-    libraryExport: "default",
+    libraryExport: 'default',
     // @see: https://github.com/webpack/webpack/issues/6522
     globalObject: "typeof self !== 'undefined' ? self : this",
   },
@@ -19,12 +19,12 @@ module.exports = {
         exclude: /node_modules/,
         use: [
           {
-            loader: "babel-loader",
+            loader: 'babel-loader',
             options: {
-              presets: ["@babel/preset-env"],
+              presets: ['@babel/preset-env'],
               plugins: [
                 // @see https://github.com/babel/babel/issues/9849
-                ["@babel/transform-runtime"],
+                ['@babel/transform-runtime'],
               ],
             },
           },
@@ -33,12 +33,30 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: [".js"],
+    extensions: ['.js'],
     // @see https://stackoverflow.com/questions/59487224/webpack-throws-error-with-emscripten-cant-resolve-fs
     fallback: {
       fs: false,
       path: false,
       crypto: false,
     },
+  },
+  externals: {
+    // three.js is only used by legacy Session class, make it external
+    three: 'three',
+  },
+  devServer: {
+    static: [
+      {
+        directory: path.join(__dirname, 'examples'),
+      },
+      {
+        directory: path.join(__dirname, 'dist'),
+      },
+    ],
+    compress: true,
+    port: 8080,
+    hot: true,
+    open: '/minimal/index.html',
   },
 };

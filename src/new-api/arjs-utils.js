@@ -8,17 +8,16 @@ export class Utils {
    */
   static createDefaultCamera(trackingMethod) {
     const camera = {
-      type: "perspectiveCamera",
+      type: 'perspectiveCamera',
       near: 0.1,
       far: 2000,
       aspect: 1,
       fov: 42,
     };
-    const trackingBackend =
-      Utils.parseTrackingMethod(trackingMethod).trackingBackend;
+    const trackingBackend = Utils.parseTrackingMethod(trackingMethod).trackingBackend;
     // Create a camera
-    if (trackingBackend === "artoolkit") {
-    } else console.assert(false, "unknown trackingBackend: " + trackingBackend);
+    if (trackingBackend === 'artoolkit') {
+    } else console.assert(false, 'unknown trackingBackend: ' + trackingBackend);
 
     return camera;
   }
@@ -30,13 +29,13 @@ export class Utils {
    * @return {Object} - various field of the tracking method
    */
   static parseTrackingMethod(trackingMethod) {
-    if (trackingMethod === "best") {
-      trackingMethod = "area-artoolkit";
+    if (trackingMethod === 'best') {
+      trackingMethod = 'area-artoolkit';
     }
 
-    if (trackingMethod.startsWith("area-")) {
+    if (trackingMethod.startsWith('area-')) {
       return {
-        trackingBackend: trackingMethod.replace("area-", ""),
+        trackingBackend: trackingMethod.replace('area-', ''),
         markersAreaEnabled: true,
       };
     } else {

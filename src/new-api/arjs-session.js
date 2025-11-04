@@ -1,7 +1,7 @@
-import * as THREE from "three";
-import { setParameters } from "../functions/utils";
-import Source from "../arjs-source";
-import Context from "../arjs-context"; // TODO context build-dependent
+import * as THREE from 'three';
+import { setParameters } from '../functions/utils';
+import Source from '../arjs-source';
+import Context from '../arjs-context'; // TODO context build-dependent
 
 /**
  *  * define a Session
@@ -31,30 +31,30 @@ export default class Session {
     console.assert(this.parameters.scene instanceof THREE.Scene);
 
     // backward emulation
-    Object.defineProperty(this, "renderer", {
+    Object.defineProperty(this, 'renderer', {
       get: function () {
-        console.warn("use .parameters.renderer renderer");
+        console.warn('use .parameters.renderer renderer');
         return this.parameters.renderer;
       },
     });
-    Object.defineProperty(this, "camera", {
+    Object.defineProperty(this, 'camera', {
       get: function () {
-        console.warn("use .parameters.camera instead");
+        console.warn('use .parameters.camera instead');
         return this.parameters.camera;
       },
     });
-    Object.defineProperty(this, "scene", {
+    Object.defineProperty(this, 'scene', {
       get: function () {
-        console.warn("use .parameters.scene instead");
+        console.warn('use .parameters.scene instead');
         return this.parameters.scene;
       },
     });
 
     // log the version
     console.log(
-      "AR.js",
+      'AR.js',
       Context.REVISION,
-      "- trackingBackend:",
+      '- trackingBackend:',
       parameters.contextParameters.trackingBackend,
     );
 
@@ -64,20 +64,12 @@ export default class Session {
     var arSource = (_this.arSource = new Source(parameters.sourceParameters));
 
     arSource.init(function onReady() {
-      arSource.onResize(
-        arContext,
-        _this.parameters.renderer,
-        _this.parameters.camera,
-      );
+      arSource.onResize(arContext, _this.parameters.renderer, _this.parameters.camera);
     });
 
     // handle resize
-    window.addEventListener("resize", function () {
-      arSource.onResize(
-        arContext,
-        _this.parameters.renderer,
-        _this.parameters.camera,
-      );
+    window.addEventListener('resize', function () {
+      arSource.onResize(arContext, _this.parameters.renderer, _this.parameters.camera);
     });
 
     //////////////////////////////////////////////////////////////////////////////
@@ -85,16 +77,13 @@ export default class Session {
     //////////////////////////////////////////////////////////////////////////////
 
     // create atToolkitContext
-    var arContext = (_this.arContext = new Context(
-      parameters.contextParameters,
-    ));
+    var arContext = (_this.arContext = new Context(parameters.contextParameters));
 
     // initialize it
-    window.addEventListener("arjs-video-loaded", function () {
+    window.addEventListener('arjs-video-loaded', function () {
       _this.arContext.init(() => {
         _this.arContext.arController.orientation = getSourceOrientation();
-        _this.arContext.arController.options.orientation =
-          getSourceOrientation();
+        _this.arContext.arController.options.orientation = getSourceOrientation();
       });
     });
 
@@ -104,26 +93,22 @@ export default class Session {
       }
 
       console.log(
-        "actual source dimensions",
+        'actual source dimensions',
         arSource.domElement.clientWidth,
         arSource.domElement.clientHeight,
       );
 
       if (arSource.domElement.clientWidth > arSource.domElement.clientHeight) {
-        console.log("source orientation", "landscape");
-        return "landscape";
+        console.log('source orientation', 'landscape');
+        return 'landscape';
       } else {
-        console.log("source orientation", "portrait");
-        return "portrait";
+        console.log('source orientation', 'portrait');
+        return 'portrait';
       }
     }
 
-    arContext.addEventListener("initialized", function (event) {
-      arSource.onResize(
-        arContext,
-        _this.parameters.renderer,
-        _this.parameters.camera,
-      );
+    arContext.addEventListener('initialized', function (event) {
+      arSource.onResize(arContext, _this.parameters.renderer, _this.parameters.camera);
     });
 
     //////////////////////////////////////////////////////////////////////////////
@@ -138,10 +123,6 @@ export default class Session {
   }
 
   onResize() {
-    this.arSource.onResize(
-      this.arContext,
-      this.parameters.renderer,
-      this.parameters.camera,
-    );
+    this.arSource.onResize(this.arContext, this.parameters.renderer, this.parameters.camera);
   }
 }

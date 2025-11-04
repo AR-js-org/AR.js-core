@@ -1,5 +1,3 @@
-types
-dist
 examples/vite-artoolkit/vendor/**
 examples/vite-artoolkit/data/**
 *.dat
