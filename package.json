@@ -21,7 +21,7 @@
     "build": "webpack --mode production",
     "build-types": "tsc",
     "dev:vite": "vite",
-    "build:vite": "vite build",
+    "build:vite": "vite build --config vite.config.mjs",
     "serve:vite": "vite preview",
     "test": "vitest",
     "test:watch": "vitest --watch",
