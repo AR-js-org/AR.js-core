@@ -1,9 +1,10 @@
 # AR.js Core ECS + ArtoolkitPlugin example
 
-## This example shows how to use the ArtoolkitPlugin with AR.js Core:
+This example shows how to use the ArtoolkitPlugin with AR.js Core:
 
 - Capture video via the webcam source plugin
 - Stream frames as ImageBitmap to the worker (frame pump)
+- Show the live webcam feed in a viewport
 - Detect the HIRO marker and receive markerFound/Updated/Lost events
 
 ## Quick start
@@ -14,38 +15,47 @@
 - or `npx http-server -p 8080`
 
 2. Open http://localhost:8080/examples/vite-artoolkit/index.html
-3. Wait for “Worker ready”, then show the HIRO marker
+3. Click “Start Webcam” to begin streaming frames and show the live video
+4. Click “Load Marker” to load the HIRO pattern, then show it to the camera
 
-## Key integration points
+## Buttons
 
-- Webcam plugin (plugins/source/webcam.js)
-  - Provides a playing `<video>` element via getUserMedia
-  - Emits SOURCE_LOADED / SOURCE_PLAYING events
+- Start Webcam
+  - Initializes capture (webcam plugin)
+  - Attaches the `<video>` element to the on‑page viewport
+  - Starts the FramePumpSystem to emit `ImageBitmap` frames via `engine:update`
+- Stop
+  - Stops the frame pump and disposes capture
+- Load Marker
+  - Calls `plugin.loadMarker('/examples/vite-artoolkit/data/patt.hiro', 1)`
 
-- Frame pump (in this example)
-  - Converts the `<video>` into ImageBitmap frames each tick
-  - Prefers `HTMLVideoElement.requestVideoFrameCallback`, falls back to `requestAnimationFrame`
-  - Emits `engine:update` with `{ id, imageBitmap, width, height }` every frame
+## Video viewport
 
-- ArtoolkitPlugin (vendor ESM)
-  - Listens to `engine:update` and forwards ImageBitmaps to the worker
-  - Emits:
-    - `ar:workerReady`, `ar:workerError`
-    - `ar:getMarker` (raw ARToolKit payload)
-    - `ar:markerFound`, `ar:markerUpdated`, `ar:markerLost`
+The webcam plugin creates `<video id="arjs-video">` and positions it offscreen. The example moves it into a visible container with:
 
-## Asset paths
+```js
+const frameSource = CaptureSystem.getFrameSource(ctx);
+const videoEl = frameSource.element;
+// detach from body, append inside #viewport, and override styles to be visible
+```
 
-- Use absolute URLs when serving from repo root:
-  - `cameraParametersUrl: '/examples/vite-artoolkit/data/camera_para.dat'`
-  - `await plugin.loadMarker('/examples/vite-artoolkit/data/patt.hiro', 1)`
+## Plugin notes
+
+- The example imports the plugin ESM from a local vendor folder. Ensure `assets/` (worker and ARToolKit chunks) sit alongside the ESM file.
+- Alternatively, import from the CDN:
+
+```js
+const mod = await import(
+  'https://cdn.jsdelivr.net/gh/AR-js-org/arjs-plugin-artoolkit@main/dist/arjs-plugin-artoolkit.esm.js'
+);
+```
 
 ## Troubleshooting
 
-- No detections?
-  - Ensure the frame pump is running and emitting ImageBitmaps
-  - Check that the worker assets (vendor plugin ESM + assets folder) are reachable
-  - Confirm correct paths for `camera_para.dat` and `patt.hiro`
-- Worker not ready?
-  - Serve via HTTP/HTTPS (not `file://`)
-  - Check the console for network or module resolution errors
+- Load Marker is disabled:
+  - Wait for “Worker ready”. The button is enabled on `ar:workerReady` or when `plugin.workerReady` is true.
+- No detections:
+  - Ensure the frame pump is running (Start Webcam pressed)
+  - Check that the worker assets and `camera_para.dat`/`patt.hiro` URLs return 200
+- Lint errors about browser APIs:
+  - Use `globalThis.createImageBitmap`, `globalThis.OffscreenCanvas`, and cancel rVFC via `video.cancelVideoFrameCallback`

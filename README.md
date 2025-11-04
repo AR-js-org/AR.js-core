@@ -40,16 +40,11 @@ await CaptureSystem.initialize(
 engine.start();
 ```
 
-## Frame Pump: streaming frames to detection plugins
+## Frame Pump + Video Viewport: streaming frames to detection plugins
 
-Most detection plugins (e.g., ArtoolkitPlugin) expect frames to arrive as `ImageBitmap` objects via the engine event bus (`engine:update`). The webcam source plugin provides a playing `<video>` element, but it doesn’t emit frames. A small “frame pump” bridges the gap:
+Detection plugins (e.g., ArtoolkitPlugin) expect frames to arrive as `ImageBitmap` via `engine:update`. The webcam source plugin provides a playing `<video>` but does not emit frames or show it on screen. Use a small frame pump and attach the video to a visible container.
 
-- Reads frames from the active `<video>` (provided by `CaptureSystem` + `source:webcam`)
-- Prefers `HTMLVideoElement.requestVideoFrameCallback` for precise timing
-- Falls back to `requestAnimationFrame` when RVFC isn’t available
-- Emits `engine:update` with `{ id, imageBitmap, width, height }` every frame
-
-Minimal example
+### Basic integration
 
 ```js
 import { CaptureSystem } from './src/systems/capture-system.js';
@@ -62,25 +57,40 @@ await CaptureSystem.initialize(
   ctx,
 );
 
-// 2) Start the frame pump (streams ImageBitmaps to detection plugins)
+// 2) Show the live video
+const frameSource = CaptureSystem.getFrameSource(ctx);
+const videoEl = frameSource.element;
+const viewport = document.getElementById('viewport');
+viewport.innerHTML = '';
+viewport.appendChild(videoEl);
+// Override offscreen styles if needed
+Object.assign(videoEl.style, {
+  position: 'relative',
+  zIndex: 1,
+  width: '100%',
+  height: 'auto',
+  display: 'block',
+});
+
+// 3) Start pumping frames to detection plugins
 FramePumpSystem.start(ctx);
 
-// 3) When done, stop the pump
+// 4) When done
 FramePumpSystem.stop(ctx);
 ```
 
-Why it’s separate from the webcam plugin
+#### Why separate from the webcam plugin?
 
-- The webcam plugin’s responsibility is to acquire and expose a video stream. Emitting frames is a reusable concern that multiple detection plugins can share, so it lives in a small system instead of being tied to a single plugin.
+- The webcam plugin is responsible for media capture and a playable `<video>`
+- Pumping frames and UI display are reusable concerns that multiple detection plugins can share
 
-Notes
+#### Browser API and linting
 
-- If your detection plugin isn’t seeing detections:
-  - Ensure the frame pump is running
-  - Confirm the plugin listens for `engine:update`
-  - Check network paths for any assets (e.g., worker files, camera parameters, patterns)
+- Guard browser globals: `globalThis.createImageBitmap`, `globalThis.OffscreenCanvas`
+- Cancel rVFC via `video.cancelVideoFrameCallback(id)`, not a global
+- Use `globalThis.requestAnimationFrame`/`globalThis.cancelAnimationFrame` with fallbacks when needed
 
-### Features
+## Features
 
 - Core ECS: Entity-Component-System with queries and resources
 - Event Bus: Lightweight pub/sub for decoupled communication
@@ -88,13 +98,13 @@ Notes
 - Capture System: Unified interface for webcam, video, and image sources
 - Profile Policies: Automatic device detection and performance tuning
 
-### Documentation
+## Documentation
 
 - ECS Architecture Guide (docs/ECS_ARCHITECTURE.md)
 - Plugins Guide (plugins/README.md) — Plugin contract, lifecycle, events, and device profile migration (QUALITY_TIERS)
 - Examples Index (examples/index.html)
 
-### Running Examples
+## Running Examples
 
 You can use either webpack (existing) or Vite (new) during development.
 
@@ -128,6 +138,12 @@ npm run serve:vite
 - Image Source Example: examples/basic-ecs/image-example.html (Vite: http://localhost:5173/examples/basic-ecs/image-example.html)
 
 If the camera doesn’t start automatically, click or tap once to allow autoplay. For Safari or stricter policies, consider enabling HTTPS in `vite.config.js` (see comments in the file).
+
+## Browser API and linting
+
+- Guard browser globals: `globalThis.createImageBitmap`, `globalThis.OffscreenCanvas`
+- Cancel rVFC via `video.cancelVideoFrameCallback(id)`, not a global
+- Use `globalThis.requestAnimationFrame`/`globalThis.cancelAnimationFrame` with fallbacks when needed
 
 ## Legacy API
 
