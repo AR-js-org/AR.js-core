@@ -145,6 +145,111 @@ If the camera doesn’t start automatically, click or tap once to allow autoplay
 - Cancel rVFC via `video.cancelVideoFrameCallback(id)`, not a global
 - Use `globalThis.requestAnimationFrame`/`globalThis.cancelAnimationFrame` with fallbacks when needed
 
+## Troubleshooting
+
+Use this checklist when the example or your integration doesn’t behave as expected.
+
+### Network checklist (open DevTools → Network)
+
+- Worker asset 200 OK:
+  - examples/vite-artoolkit/vendor/arjs-plugin-artoolkit/assets/worker-\*.js
+  - If 404: copy the plugin’s dist assets next to the ESM, or import from CDN:
+    ```js
+    const mod = await import(
+      'https://cdn.jsdelivr.net/gh/AR-js-org/arjs-plugin-artoolkit@main/dist/arjs-plugin-artoolkit.esm.js'
+    );
+    ```
+- ARToolKit chunk 200 OK:
+  - examples/vite-artoolkit/vendor/arjs-plugin-artoolkit/assets/ARToolkit-\*.js
+- Camera parameters 200 OK:
+  - /examples/vite-artoolkit/data/camera_para.dat
+- Pattern file 200 OK:
+  - /examples/vite-artoolkit/data/patt.hiro
+
+### Worker not ready (Load Marker stays disabled)
+
+- Ensure you register event listeners before enabling the plugin:
+  ```js
+  engine.eventBus.on('ar:workerReady', onReady);
+  await artoolkit.init(ctx);
+  await artoolkit.enable();
+  ```
+- Serve via HTTP/HTTPS (not file://).
+- If using a local vendor ESM, ensure the ESM and its assets/ folder live together:
+  ```
+  vendor/arjs-plugin-artoolkit/
+  ├─ arjs-plugin-artoolkit.esm.js
+  └─ assets/
+     ├─ worker-XXXX.js
+     └─ ARToolkit-XXXX.js
+  ```
+
+### No detections (no markerFound/Updated/Lost)
+
+- Start the frame pump after webcam capture:
+  ```js
+  await CaptureSystem.initialize({ sourceType: SOURCE_TYPES.WEBCAM }, ctx);
+  FramePumpSystem.start(ctx); // emits engine:update with ImageBitmap
+  ```
+- Confirm engine:update is firing and ar:getMarker logs appear.
+- If createImageBitmap is unavailable, the pump falls back to a canvas path automatically.
+
+### Video not visible
+
+- Attach the webcam <video> to a visible container and override offscreen styles:
+  ```js
+  const { element: videoEl } = CaptureSystem.getFrameSource(ctx);
+  Object.assign(videoEl.style, {
+    position: 'relative',
+    zIndex: 1,
+    width: '100%',
+    height: 'auto',
+    display: 'block',
+  });
+  document.getElementById('viewport').appendChild(videoEl);
+  ```
+
+### 404s for assets (worker/ARToolKit chunks)
+
+- If importing the plugin ESM from a local vendor path, copy the entire dist contents:
+  - arjs-plugin-artoolkit.esm.js
+  - assets/worker-\*.js
+  - assets/ARToolKit-\*.js
+- Or import the plugin from CDN to avoid local asset wiring:
+  ```js
+  const mod = await import(
+    'https://cdn.jsdelivr.net/gh/AR-js-org/arjs-plugin-artoolkit@main/dist/arjs-plugin-artoolkit.esm.js'
+  );
+  ```
+
+### Autoplay/permissions (mobile)
+
+- Ensure the video element is muted and has playsinline for iOS:
+  ```js
+  videoEl.muted = true;
+  videoEl.setAttribute('playsinline', '');
+  ```
+- Use HTTPS on mobile browsers to access the camera.
+
+### Browser API and linting
+
+- Guard browser globals:
+  - `globalThis.createImageBitmap`, `globalThis.OffscreenCanvas`
+- Cancel rVFC via `video.cancelVideoFrameCallback(id)`, not a global.
+- Use `globalThis.requestAnimationFrame`/`globalThis.cancelAnimationFrame` with fallbacks when needed.
+
+### CORS
+
+- If serving from a custom dev server, ensure it serves:
+  - the vendor ESM and its assets folder
+  - example data files under /examples/...
+- Avoid cross-origin requests without proper CORS headers.
+
+### Performance tips
+
+- Prefer `HTMLVideoElement.requestVideoFrameCallback` when available; it syncs to decoder frames.
+- If needed, throttle frame emission in the pump to reduce CPU usage (e.g., skip frames).
+
 ## Legacy API
 
 The original Source and Profile classes are still available and fully supported:
