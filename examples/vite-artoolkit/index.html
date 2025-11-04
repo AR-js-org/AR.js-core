@@ -1,23 +1,40 @@
 <!doctype html>
-<html lang="it">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>AR.js Core ECS + ArtoolkitPlugin (CDN)</title>
-    <style>
-      html,
-      body {
-        margin: 0;
-        height: 100%;
-        background: #000;
-        color: #fff;
-      }
-    </style>
-  </head>
-  <body>
-    <script type="module" src="./main.js"></script>
-    <div id="status" class="status">Initializing...</div>
-    <h3>Event Log:</h3>
-    <div id="log" class="log"></div>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AR.js Core ECS + ArtoolkitPlugin (CDN)</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #111; color: #eee; font-family: system-ui, Arial, sans-serif; }
+    .container { max-width: 960px; margin: 24px auto; padding: 16px; }
+    h1 { margin: 0 0 8px; font-size: 20px; }
+    p { margin: 8px 0 16px; color: #ccc; }
+    .controls { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    button { padding: 10px 14px; border: 0; border-radius: 6px; background: #2d6cdf; color: #fff; cursor: pointer; }
+    button[disabled] { background: #555; cursor: default; }
+    .status { padding: 10px; border-radius: 6px; background: #222; margin-bottom: 12px; }
+    .status.success { background: #17351d; color: #9af5b5; }
+    .status.error { background: #3a1515; color: #ff9b9b; }
+    .log { background: #1b1b1b; border-radius: 6px; padding: 10px; min-height: 140px; max-height: 260px; overflow: auto; font: 12px/1.4 monospace; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>AR.js Core ECS + ArtoolkitPlugin</h1>
+  <p>Use the buttons to start/stop the webcam and load the HIRO pattern marker.</p>
+
+  <div id="status" class="status">Initializing…</div>
+
+  <div class="controls">
+    <button id="startBtn">Start Webcam</button>
+    <button id="stopBtn" disabled>Stop</button>
+    <button id="loadBtn" disabled>Load Marker</button>
+  </div>
+
+  <h3>Event Log</h3>
+  <div id="log" class="log"></div>
+</div>
+
+<script type="module" src="./main.js"></script>
+</body>
 </html>
