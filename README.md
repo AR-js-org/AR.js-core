@@ -98,6 +98,26 @@ FramePumpSystem.stop(ctx);
 - Capture System: Unified interface for webcam, video, and image sources
 - Profile Policies: Automatic device detection and performance tuning
 
+## Build library bundle with Vite
+
+AR.js Core can be bundled with Vite in library mode to produce importable ESM and CommonJS files.
+
+**Commands**
+
+```bash
+npm run build:vite
+```
+
+**Outputs** (written to dist/)
+
+- `dist/arjs-core.es.js` (ESM — used by `exports.import` / `module`)
+- `dist/arjs-core.js` (CommonJS — used by `exports.require` / `main`)
+
+**Notes**
+
+- Webpack scripts remain for legacy/dev workflows; Vite handles the library bundles.
+- Large/peer dependencies like `@ar-js-org/artoolkit5-js` are marked external and not bundled.
+
 ## Documentation
 
 - ECS Architecture Guide (docs/ECS_ARCHITECTURE.md)
