@@ -16,6 +16,44 @@ const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const loadBtn = document.getElementById('loadBtn');
 
+function attachVideoToViewport(ctx) {
+  const frameSource = CaptureSystem.getFrameSource(ctx);
+  const videoEl = frameSource?.element;
+  if (!videoEl) return;
+
+  const viewport = document.getElementById('viewport');
+  if (!viewport) return;
+
+  try {
+    // Detach from body if plugin appended it
+    if (videoEl.parentNode && videoEl.parentNode !== viewport) {
+      videoEl.parentNode.removeChild(videoEl);
+    }
+  } catch {}
+
+  // Ensure attributes optimal for inline playback
+  try {
+    videoEl.setAttribute('playsinline', '');
+    videoEl.setAttribute('autoplay', '');
+    videoEl.muted = true;
+    videoEl.controls = false;
+  } catch {}
+
+  // Override any offscreen styles the source plugin applied
+  Object.assign(videoEl.style, {
+    position: 'relative',
+    top: '0px',
+    left: '0px',
+    zIndex: '1',
+    width: '100%',
+    height: 'auto',
+    display: 'block',
+  });
+
+  viewport.innerHTML = '';
+  viewport.appendChild(videoEl);
+}
+
 function log(message) {
   const ts = new Date().toISOString();
   const el = document.createElement('div');
@@ -125,6 +163,8 @@ async function startWebcam() {
       },
       ctx,
     );
+
+    attachVideoToViewport(ctx);
 
     // Start frame pump (streams ImageBitmap frames into engine:update)
     if (!pumping) {

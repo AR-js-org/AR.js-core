@@ -16,6 +16,27 @@
     .status.success { background: #17351d; color: #9af5b5; }
     .status.error { background: #3a1515; color: #ff9b9b; }
     .log { background: #1b1b1b; border-radius: 6px; padding: 10px; min-height: 140px; max-height: 260px; overflow: auto; font: 12px/1.4 monospace; }
+
+    /* New: video viewport styles */
+    .viewport {
+      width: 100%;
+      max-width: 640px;
+      aspect-ratio: 4 / 3; /* optional placeholder ratio */
+      background: #000;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .viewport video {
+      display: block;
+      width: 100%;
+      height: auto;
+      position: relative !important;
+      top: 0 !important;
+      left: 0 !important;
+      z-index: 1 !important;
+      object-fit: cover;
+    }
   </style>
 </head>
 <body>
@@ -30,6 +51,9 @@
     <button id="stopBtn" disabled>Stop</button>
     <button id="loadBtn" disabled>Load Marker</button>
   </div>
+
+  <!-- New: viewport where we will insert the video element -->
+  <div id="viewport" class="viewport"></div>
 
   <h3>Event Log</h3>
   <div id="log" class="log"></div>
