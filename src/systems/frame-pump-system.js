@@ -13,6 +13,7 @@ export class FramePumpSystem {
     if (!context) throw new Error('FramePumpSystem.start requires a context');
     const bus = context.eventBus;
     const ref = context.ecs.getResource(RESOURCES.FRAME_SOURCE_REF);
+
     if (!ref?.element) {
       console.warn(
         '[FramePumpSystem] No frame source element found; did you call CaptureSystem.initialize?',
@@ -20,7 +21,7 @@ export class FramePumpSystem {
       return false;
     }
     const video = ref.element;
-    if (video.tagName !== 'VIDEO') {
+    if (String(video.tagName).toUpperCase() !== 'VIDEO') {
       console.warn('[FramePumpSystem] Frame source is not a <video> element; skipping frame pump.');
       return false;
     }
@@ -31,22 +32,32 @@ export class FramePumpSystem {
     if (state.running) return true;
     state.running = true;
     state._fid = 0;
+    state._raf = 0;
+    state._rvfc = 0;
 
     // Optional canvas fallback
     let offscreen = null;
     let ctx2d = null;
+
     function ensureCanvas(w, h) {
       if (offscreen && offscreen.width === w && offscreen.height === h) return;
       try {
-        if ('OffscreenCanvas' in globalThis) {
-          offscreen = new OffscreenCanvas(w, h);
+        if (typeof globalThis.OffscreenCanvas !== 'undefined') {
+          offscreen = new globalThis.OffscreenCanvas(w, h);
           ctx2d = offscreen.getContext('2d', { willReadFrequently: true });
         } else {
-          const c = document.createElement('canvas');
+          const c = globalThis.document?.createElement?.('canvas');
+          if (!c) {
+            offscreen = null;
+            ctx2d = null;
+            return;
+          }
           c.width = w;
           c.height = h;
           c.style.display = 'none';
-          document.body.appendChild(c);
+          try {
+            globalThis.document?.body?.appendChild?.(c);
+          } catch {}
           offscreen = c;
           ctx2d = c.getContext('2d', { willReadFrequently: true });
         }
@@ -61,10 +72,10 @@ export class FramePumpSystem {
       const h = video.videoHeight || ref.height || 480;
       if (!w || !h) return;
 
-      // Try the fast path: ImageBitmap directly from video
+      // Fast path: ImageBitmap directly from video
       try {
-        if (globalThis.createImageBitmap) {
-          const imageBitmap = await createImageBitmap(video);
+        if (typeof globalThis.createImageBitmap === 'function') {
+          const imageBitmap = await globalThis.createImageBitmap(video);
           bus.emit('engine:update', { id: ++state._fid, imageBitmap, width: w, height: h });
           return;
         }
@@ -80,8 +91,8 @@ export class FramePumpSystem {
         ctx2d.clearRect(0, 0, w, h);
         ctx2d.drawImage(video, 0, 0, w, h);
 
-        if (globalThis.createImageBitmap) {
-          const imageBitmap = await createImageBitmap(offscreen);
+        if (typeof globalThis.createImageBitmap === 'function') {
+          const imageBitmap = await globalThis.createImageBitmap(offscreen);
           bus.emit('engine:update', { id: ++state._fid, imageBitmap, width: w, height: h });
         } else {
           // As a last resort, emit without ImageBitmap (worker will try a slower fallback)
@@ -94,19 +105,20 @@ export class FramePumpSystem {
 
     // Use requestVideoFrameCallback when available
     if (typeof video.requestVideoFrameCallback === 'function') {
-      const step = async (_now, _metadata) => {
+      const step = async () => {
         if (!state.running) return;
         await emitFrame();
         state._rvfc = video.requestVideoFrameCallback(step);
       };
       state._rvfc = video.requestVideoFrameCallback(step);
     } else {
+      const raf = globalThis.requestAnimationFrame || ((fn) => setTimeout(fn, 16));
       const loop = async () => {
         if (!state.running) return;
         await emitFrame();
-        state._raf = requestAnimationFrame(loop);
+        state._raf = raf(loop);
       };
-      state._raf = requestAnimationFrame(loop);
+      state._raf = raf(loop);
     }
 
     return true;
@@ -114,18 +126,33 @@ export class FramePumpSystem {
 
   static stop(context) {
     const state = context?.__framePump;
+    const ref = context?.ecs?.getResource?.(RESOURCES.FRAME_SOURCE_REF);
+    const video = ref?.element;
     if (!state || !state.running) return;
+
     state.running = false;
-    if (state._rvfc && typeof cancelVideoFrameCallback === 'function') {
+
+    // Cancel RVFC via the video element
+    if (video && typeof video.cancelVideoFrameCallback === 'function' && state._rvfc) {
       try {
-        cancelVideoFrameCallback(state._rvfc);
+        video.cancelVideoFrameCallback(state._rvfc);
       } catch {}
     }
+
+    // Cancel RAF/timeout
+    const caf =
+      globalThis.cancelAnimationFrame ||
+      ((id) => {
+        try {
+          clearTimeout(id);
+        } catch {}
+      });
     if (state._raf) {
       try {
-        cancelAnimationFrame(state._raf);
+        caf(state._raf);
       } catch {}
     }
+
     context.__framePump = undefined;
   }
 }

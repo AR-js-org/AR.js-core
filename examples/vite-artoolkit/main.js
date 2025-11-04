@@ -15,6 +15,7 @@ const logEl = document.getElementById('log');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const loadBtn = document.getElementById('loadBtn');
+const viewport = document.getElementById('viewport');
 
 function attachVideoToViewport(ctx) {
   const frameSource = CaptureSystem.getFrameSource(ctx);
@@ -195,6 +196,7 @@ async function stopWebcam() {
       pumping = false;
     }
     await CaptureSystem.dispose(ctx);
+    if (viewport) viewport.innerHTML = '';
     cameraStarted = false;
 
     setStatus('Webcam stopped.', 'success');
