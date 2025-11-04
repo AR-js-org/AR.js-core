@@ -40,6 +40,46 @@ await CaptureSystem.initialize(
 engine.start();
 ```
 
+## Frame Pump: streaming frames to detection plugins
+
+Most detection plugins (e.g., ArtoolkitPlugin) expect frames to arrive as `ImageBitmap` objects via the engine event bus (`engine:update`). The webcam source plugin provides a playing `<video>` element, but it doesn’t emit frames. A small “frame pump” bridges the gap:
+
+- Reads frames from the active `<video>` (provided by `CaptureSystem` + `source:webcam`)
+- Prefers `HTMLVideoElement.requestVideoFrameCallback` for precise timing
+- Falls back to `requestAnimationFrame` when RVFC isn’t available
+- Emits `engine:update` with `{ id, imageBitmap, width, height }` every frame
+
+Minimal example
+
+```js
+import { CaptureSystem } from './src/systems/capture-system.js';
+import { SOURCE_TYPES } from './src/core/components.js';
+import { FramePumpSystem } from './src/systems/frame-pump-system.js';
+
+// 1) Initialize capture (provides a playing <video>)
+await CaptureSystem.initialize(
+  { sourceType: SOURCE_TYPES.WEBCAM, sourceWidth: 640, sourceHeight: 480 },
+  ctx,
+);
+
+// 2) Start the frame pump (streams ImageBitmaps to detection plugins)
+FramePumpSystem.start(ctx);
+
+// 3) When done, stop the pump
+FramePumpSystem.stop(ctx);
+```
+
+Why it’s separate from the webcam plugin
+
+- The webcam plugin’s responsibility is to acquire and expose a video stream. Emitting frames is a reusable concern that multiple detection plugins can share, so it lives in a small system instead of being tied to a single plugin.
+
+Notes
+
+- If your detection plugin isn’t seeing detections:
+  - Ensure the frame pump is running
+  - Confirm the plugin listens for `engine:update`
+  - Check network paths for any assets (e.g., worker files, camera parameters, patterns)
+
 ### Features
 
 - Core ECS: Entity-Component-System with queries and resources
