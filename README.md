@@ -116,7 +116,6 @@ npm run build:vite
 **Notes**
 
 - Webpack scripts remain for legacy/dev workflows; Vite handles the library bundles.
-- Large/peer dependencies like `@ar-js-org/artoolkit5-js` are marked external and not bundled.
 
 ## Documentation
 

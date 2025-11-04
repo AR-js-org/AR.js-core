@@ -13,9 +13,7 @@ export default defineConfig({
     },
     rollupOptions: {
       // Do not bundle large/peer deps. Add here as needed.
-      external: [
-        '@ar-js-org/artoolkit5-js',
-      ],
+      external: [],
       output: [
         {
           format: 'es',
