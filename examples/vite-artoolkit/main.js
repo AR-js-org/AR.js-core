@@ -1,6 +1,8 @@
 // File: 'examples/vite-artoolkit/main.js'
 import { Engine } from '../../src/core/engine.js';
 import { CaptureSystem } from '../../src/systems/capture-system.js';
+import { FramePumpSystem } from '../../src/systems/frame-pump-system.js';
+
 import { SOURCE_TYPES } from '../../src/core/components.js';
 
 import { webcamPlugin } from '../../plugins/source/webcam.js';
@@ -40,8 +42,8 @@ async function main() {
   const ArtoolkitPlugin = mod.ArtoolkitPlugin || mod.default;
 
   const artoolkit = new ArtoolkitPlugin({
-    cameraParametersUrl: './../../../../../examples/vite-artoolkit/data/camera_para.dat',
-    patternUrl: './../../../../../examples/vite-artoolkit/data/patt.hiro',
+    cameraParametersUrl: '/examples/vite-artoolkit/data/camera_para.dat',
+    patternUrl: '/examples/vite-artoolkit/data/patt.hiro',
     detectionMode: 'mono',
   });
   console.log(artoolkit);
@@ -67,6 +69,8 @@ async function main() {
 
   // Avvia l’engine ECS
   engine.start();
+
+  FramePumpSystem.start(ctx);
 
   engine.eventBus.on('ar:workerReady', () => {
     log('Worker ready');
