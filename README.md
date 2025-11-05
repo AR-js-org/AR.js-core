@@ -110,7 +110,7 @@ npm run build:vite
 
 **Outputs** (written to dist/)
 
-- `dist/arjs-core.es.js` (ESM — used by `exports.import` / `module`)
+- `dist/arjs-core.mjs` (ESM — used by `exports.import` / `module`)
 - `dist/arjs-core.js` (CommonJS — used by `exports.require` / `main`)
 
 **Notes**

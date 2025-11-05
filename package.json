@@ -3,14 +3,15 @@
   "version": "0.2.0",
   "description": "core library of AR.js",
   "main": "dist/arjs-core.js",
-  "module": "dist/arjs-core.es.js",
+  "module": "dist/arjs-core.mjs",
   "exports": {
     ".": {
-      "import": "./dist/arjs-core.es.js",
+      "import": "./dist/arjs-core.mjs",
       "require": "./dist/arjs-core.js",
-      "default": "./dist/arjs-core.es.js"
+      "default": "./dist/arjs-core.mjs"
     }
   },
+  "sideEffects": false,
   "scripts": {
     "format-check": "prettier --check .",
     "format": "prettier --write .",
