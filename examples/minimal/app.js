@@ -3,14 +3,6 @@
  * Demonstrates the new ECS architecture with plugins
  */
 
-/*import { Engine } from '../../src/core/engine.js';
-import { CaptureSystem } from '../../src/systems/capture-system.js';
-import { webcamPlugin } from '../../plugins/source/webcam.js';
-import { videoPlugin } from '../../plugins/source/video.js';
-import { imagePlugin } from '../../plugins/source/image.js';
-import { defaultProfilePlugin } from '../../plugins/profile/default-policy.js';
-import { EVENTS, RESOURCES, SOURCE_TYPES } from '../../src/core/components.js';*/
-
 import {
   Engine,
   CaptureSystem,
