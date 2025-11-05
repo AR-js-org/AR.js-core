@@ -1,16 +1,23 @@
-// Public entry for the AR.js Core library.
-// Re-export the modules you want consumers to import from 'ar.js-core'.
-
-// Core
+// New ECS Core exports
 export { Engine } from './core/engine.js';
-export { PluginManager } from './core/plugin-manager.js';
+export { ECS } from './core/ecs.js';
 export { EventBus } from './core/event-bus.js';
-export * as Components from './core/components.js';
+export { PluginManager } from './core/plugin-manager.js';
+export {
+  COMPONENTS,
+  RESOURCES,
+  EVENTS,
+  CAPTURE_STATES,
+  SOURCE_TYPES,
+  DEVICE_PROFILES,
+  QUALITY_TIERS,
+} from './core/components.js';
 
 // Systems
 export { CaptureSystem } from './systems/capture-system.js';
+export { FramePumpSystem } from './systems/frame-pump-system.js';
 
-// Source plugins
+// Source plugins (exposed for examples/consumers)
 export { webcamPlugin } from '../plugins/source/webcam.js';
 export { videoPlugin } from '../plugins/source/video.js';
 export { imagePlugin } from '../plugins/source/image.js';

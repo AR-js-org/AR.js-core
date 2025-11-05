@@ -1,13 +1,14 @@
 // Example: AR.js Core ECS + ArtoolkitPlugin with Start/Stop/Load buttons
+// Import everything from the bundled lib.
 
-import { Engine } from '../../src/core/engine.js';
-import { CaptureSystem } from '../../src/systems/capture-system.js';
-import { SOURCE_TYPES } from '../../src/core/components.js';
-import { FramePumpSystem } from '../../src/systems/frame-pump-system.js';
-
-import { webcamPlugin } from '../../plugins/source/webcam.js';
-import { defaultProfilePlugin } from '../../plugins/profile/default-policy.js';
-import { imagePlugin as artookit } from '../../plugins';
+import {
+  Engine,
+  CaptureSystem,
+  FramePumpSystem,
+  SOURCE_TYPES,
+  webcamPlugin,
+  defaultProfilePlugin,
+} from '../../dist/arjs-core.mjs';
 
 // UI
 const statusEl = document.getElementById('status');
@@ -26,13 +27,11 @@ function attachVideoToViewport(ctx) {
   if (!viewport) return;
 
   try {
-    // Detach from body if plugin appended it
     if (videoEl.parentNode && videoEl.parentNode !== viewport) {
       videoEl.parentNode.removeChild(videoEl);
     }
   } catch {}
 
-  // Ensure attributes optimal for inline playback
   try {
     videoEl.setAttribute('playsinline', '');
     videoEl.setAttribute('autoplay', '');
@@ -40,7 +39,6 @@ function attachVideoToViewport(ctx) {
     videoEl.controls = false;
   } catch {}
 
-  // Override any offscreen styles the source plugin applied
   Object.assign(videoEl.style, {
     position: 'relative',
     top: '0px',
@@ -81,11 +79,11 @@ let cameraStarted = false;
 async function bootstrap() {
   engine = new Engine();
 
-  // Register core/source plugins
+  // Register core/source plugins from the bundled lib
   engine.pluginManager.register(defaultProfilePlugin.id, defaultProfilePlugin);
   engine.pluginManager.register(webcamPlugin.id, webcamPlugin);
 
-  // Load ArtoolkitPlugin ESM from bundled vendor (ensure assets folder is present and served)
+  // Load ArtoolkitPlugin ESM (local vendor or CDN)
   const mod = await import('./vendor/arjs-plugin-artoolkit/arjs-plugin-artoolkit.esm.js');
   const ArtoolkitPlugin = mod.ArtoolkitPlugin || mod.default;
 
@@ -93,7 +91,7 @@ async function bootstrap() {
   engine.eventBus.on('ar:workerReady', () => {
     log('Worker ready');
     setStatus('Worker ready. You can start the webcam and load the marker.', 'success');
-    loadBtn.disabled = false; // allow loading even before camera (matches minimal example)
+    loadBtn.disabled = false;
   });
   engine.eventBus.on('ar:workerError', (e) => {
     log(`workerError: ${JSON.stringify(e)}`);
@@ -109,13 +107,11 @@ async function bootstrap() {
   await engine.pluginManager.enable(defaultProfilePlugin.id, ctx);
   await engine.pluginManager.enable(webcamPlugin.id, ctx);
 
-  // Create ARToolKit plugin and wire it EXPLICITLY to this engine context
+  // Create ARToolKit plugin and wire it to this engine context
   artoolkit = new ArtoolkitPlugin({
     cameraParametersUrl: '/examples/vite-artoolkit/data/camera_para.dat',
     minConfidence: 0.6,
   });
-
-  // IMPORTANT: bind to engine context so events go to engine.eventBus
   await artoolkit.init(ctx);
   await artoolkit.enable();
 
@@ -129,17 +125,6 @@ async function bootstrap() {
     loadBtn.disabled = false;
   } else {
     setStatus('Plugin initialized. Waiting for worker…', 'normal');
-    // Tiny watchdog in case the ready event is missed due to external wiring
-    const t0 = Date.now();
-    const iv = setInterval(() => {
-      if (artoolkit.workerReady) {
-        loadBtn.disabled = false;
-        setStatus('Worker ready. You can start the webcam and load the marker.', 'success');
-        clearInterval(iv);
-      } else if (Date.now() - t0 > 5000) {
-        clearInterval(iv);
-      }
-    }, 100);
   }
 
   // UI initial state
@@ -223,7 +208,6 @@ async function loadMarker() {
     log('loadMarker failed: ' + (err?.message || err));
     setStatus('Failed to load marker', 'error');
   } finally {
-    // Re-enable for retry/replace
     loadBtn.disabled = false;
   }
 }
