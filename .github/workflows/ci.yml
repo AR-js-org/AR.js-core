@@ -47,10 +47,6 @@ jobs:
       - name: ESLint
         run: npm run lint
 
-      # Webpack build (legacy/dev parity)
-      - name: Build (webpack)
-        run: npm run build
-
       # Vite library build (ESM + CJS)
       - name: Build (Vite)
         run: npm run build:vite
