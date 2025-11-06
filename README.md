@@ -1,22 +1,32 @@
 # AR.js-core
 
-An attempt to convert the Ar.js threex library into an agnostic library that can be used with any 3D library.
+A renderer-agnostic AR library built on a modern Entity-Component-System (ECS) architecture with a plugin system.
 
-## New: ECS Architecture
+## ECS-Only Core
 
-AR.js Core now includes a modern Entity-Component-System (ECS) architecture with a plugin system! This provides:
+**Migration Note:** As of version 0.2.0, AR.js-core is **ECS-only**. The legacy API (Source, Profile, Session, SessionDebugUI classes) has been removed from the core library to focus on:
 
 - Modular design with a clean plugin system
 - Data-oriented ECS for efficient processing
 - Event-driven architecture with pub/sub messaging
-- Backward compatible with existing Source and Profile APIs
+- Renderer-agnostic foundation for AR.js-next
+
+**Renderer integrations** (e.g., Three.js) now live in external repositories:
+
+- [arjs-plugin-threejs](https://github.com/AR-js-org/arjs-plugin-threejs) - Three.js integration plugin
+
+If you need the legacy API, please use version 0.1.x or migrate to the new ECS architecture documented below.
 
 ### Quick Start with ECS
 
 ```javascript
-import { Engine, CaptureSystem, SOURCE_TYPES } from 'ar.js-core';
-import { webcamPlugin } from './plugins/source/webcam.js';
-import { defaultProfilePlugin } from './plugins/profile/default-policy.js';
+import {
+  Engine,
+  CaptureSystem,
+  SOURCE_TYPES,
+  webcamPlugin,
+  defaultProfilePlugin,
+} from 'ar.js-core';
 
 // Create engine and register plugins
 const engine = new Engine();
@@ -47,9 +57,7 @@ Detection plugins (e.g., ArtoolkitPlugin) expect frames to arrive as `ImageBitma
 ### Basic integration
 
 ```js
-import { CaptureSystem } from './src/systems/capture-system.js';
-import { SOURCE_TYPES } from './src/core/components.js';
-import { FramePumpSystem } from './src/systems/frame-pump-system.js';
+import { CaptureSystem, SOURCE_TYPES, FramePumpSystem } from 'ar.js-core';
 
 // 1) Initialize capture (provides a playing <video>)
 await CaptureSystem.initialize(
@@ -98,24 +106,44 @@ FramePumpSystem.stop(ctx);
 - Capture System: Unified interface for webcam, video, and image sources
 - Profile Policies: Automatic device detection and performance tuning
 
-## Build library bundle with Vite
+## Distribution and imports
 
-AR.js Core can be bundled with Vite in library mode to produce importable ESM and CommonJS files.
+AR.js Core is distributed as both ESM and CommonJS modules:
 
-**Commands**
+- **ESM (recommended)**: `dist/arjs-core.mjs` - Use with modern bundlers and browsers
+- **CommonJS**: `dist/arjs-core.js` - Use with Node.js or older bundlers
+
+### Import examples
+
+**ESM (Browser/Vite/Webpack 5+):**
+
+```javascript
+import { Engine, CaptureSystem, webcamPlugin } from 'ar.js-core';
+```
+
+**CommonJS (Node.js):**
+
+```javascript
+const { Engine, CaptureSystem, webcamPlugin } = require('ar.js-core');
+```
+
+**Direct script tag (not recommended for production):**
+
+```html
+<script type="module">
+  import { Engine } from './node_modules/ar.js-core/dist/arjs-core.mjs';
+</script>
+```
+
+### Build from source
 
 ```bash
 npm run build:vite
 ```
 
-**Outputs** (written to dist/)
+This builds both `dist/arjs-core.mjs` (ESM) and `dist/arjs-core.js` (CommonJS).
 
-- `dist/arjs-core.mjs` (ESM — used by `exports.import` / `module`)
-- `dist/arjs-core.js` (CommonJS — used by `exports.require` / `main`)
-
-**Notes**
-
-- Webpack scripts remain for legacy/dev workflows; Vite handles the library bundles.
+**Note:** Webpack scripts remain for legacy/dev workflows; Vite handles the library bundles.
 
 ## Documentation
 
@@ -268,13 +296,3 @@ Use this checklist when the example or your integration doesn’t behave as expe
 
 - Prefer `HTMLVideoElement.requestVideoFrameCallback` when available; it syncs to decoder frames.
 - If needed, throttle frame emission in the pump to reduce CPU usage (e.g., skip frames).
-
-## Legacy API
-
-The original Source and Profile classes are still available and fully supported:
-
-```javascript
-import { Source, Profile } from 'arjs-core';
-```
-
-See existing documentation for legacy API usage.
