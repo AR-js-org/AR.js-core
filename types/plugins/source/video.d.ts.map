@@ -1,0 +1,1 @@
+{"version":3,"file":"video.d.ts","sourceRoot":"","sources":["../../../plugins/source/video.js"],"names":[],"mappings":";;;;;;IAiBE;;OAEG;IACH,2CAEC;IAED;;;;;;;;;;;;OAYG;IACH,yBAVG;QAAuB,SAAS,EAAxB,MAAM;QACU,WAAW,GAA3B,MAAM;QACU,YAAY,GAA5B,MAAM;QACU,YAAY,GAA5B,MAAM;QACU,aAAa,GAA7B,MAAM;QACW,IAAI,GAArB,OAAO;QACU,KAAK,GAAtB,OAAO;KACf,iBACU,OAAO,KAAQ,CA4H3B;IAED;;OAEG;IACH,kCAoBC"}
