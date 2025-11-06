@@ -4,329 +4,204 @@ A renderer-agnostic AR library built on a modern Entity-Component-System (ECS) a
 
 ## ECS-Only Core
 
-**Migration Note:** As of version 0.2.0, AR.js-core is **ECS-only**. The legacy API (Source, Profile, Session, SessionDebugUI classes) has been removed from the core library to focus on:
+As of 0.2.x, AR.js-core is ECS-only. Legacy classes (Source, Profile, Session, SessionDebugUI) have been removed to focus on:
 
 - Modular design with a clean plugin system
-- Data-oriented ECS for efficient processing
-- Event-driven architecture with pub/sub messaging
-- Renderer-agnostic foundation for AR.js-next
+- Data‑oriented ECS for efficient processing
+- Event‑driven architecture with pub/sub messaging
+- Renderer‑agnostic foundation for AR.js‑next
 
-**Renderer integrations** (e.g., Three.js) now live in external repositories:
+Renderer integrations live in external repositories:
 
-- [arjs-plugin-threejs](https://github.com/AR-js-org/arjs-plugin-threejs) - Three.js integration plugin
+- [arjs-plugin-threejs](https://github.com/AR-js-org/arjs-plugin-threejs)
 
-If you need the legacy API, please use version 0.1.x or migrate to the new ECS architecture documented below.
+If you need the legacy API, use 0.1.x or migrate to the ECS architecture below.
 
-### Quick Start with ECS
+## Quick Start (ECS)
 
-```javascript
+```js
 import {
   Engine,
   CaptureSystem,
   SOURCE_TYPES,
-  webcamPlugin,
   defaultProfilePlugin,
+  webcamPlugin,
 } from 'ar.js-core';
 
-// Create engine and register plugins
 const engine = new Engine();
-engine.pluginManager.register(webcamPlugin.id, webcamPlugin);
+const ctx = engine.getContext();
+
+// Register and enable core plugins
 engine.pluginManager.register(defaultProfilePlugin.id, defaultProfilePlugin);
+engine.pluginManager.register(webcamPlugin.id, webcamPlugin);
+await engine.pluginManager.enable(defaultProfilePlugin.id, ctx);
+await engine.pluginManager.enable(webcamPlugin.id, ctx);
 
-// Enable profile plugin (computes capability-based profile)
-await engine.pluginManager.enable(defaultProfilePlugin.id, engine.getContext());
-
-// Initialize webcam capture
-await CaptureSystem.initialize(
-  {
-    sourceType: SOURCE_TYPES.WEBCAM,
-    sourceWidth: 640,
-    sourceHeight: 480,
-  },
-  engine.getContext(),
-);
-
-// Start the engine
-engine.start();
-```
-
-## Frame Pump + Video Viewport: streaming frames to detection plugins
-
-Detection plugins (e.g., ArtoolkitPlugin) expect frames to arrive as `ImageBitmap` via `engine:update`. The webcam source plugin provides a playing `<video>` but does not emit frames or show it on screen. Use a small frame pump and attach the video to a visible container.
-
-### Basic integration
-
-```js
-import { CaptureSystem, SOURCE_TYPES, FramePumpSystem } from 'ar.js-core';
-
-// 1) Initialize capture (provides a playing <video>)
+// Initialize capture and start engine
 await CaptureSystem.initialize(
   { sourceType: SOURCE_TYPES.WEBCAM, sourceWidth: 640, sourceHeight: 480 },
   ctx,
 );
 
-// 2) Show the live video
-const frameSource = CaptureSystem.getFrameSource(ctx);
-const videoEl = frameSource.element;
-const viewport = document.getElementById('viewport');
-viewport.innerHTML = '';
-viewport.appendChild(videoEl);
-// Override offscreen styles if needed
-Object.assign(videoEl.style, {
-  position: 'relative',
-  zIndex: 1,
-  width: '100%',
-  height: 'auto',
-  display: 'block',
-});
+engine.start();
+```
 
-// 3) Start pumping frames to detection plugins
+## Frame Pump + Video Viewport
+
+Detection plugins (e.g., arjs-plugin-artoolkit) consume frames as ImageBitmap during engine:update. The webcam plugin provides a playing <video> but does not emit frames itself.
+
+Basic flow:
+
+```js
+import { CaptureSystem, SOURCE_TYPES, FramePumpSystem } from 'ar.js-core';
+
+// 1) Start capture
+await CaptureSystem.initialize({ sourceType: SOURCE_TYPES.WEBCAM }, ctx);
+
+// 2) Show live video (optional UI)
+const { element: videoEl } = CaptureSystem.getFrameSource(ctx);
+document.getElementById('viewport').appendChild(videoEl);
+
+// 3) Pump frames to detection plugins
 FramePumpSystem.start(ctx);
 
-// 4) When done
+// 4) Stop when done
 FramePumpSystem.stop(ctx);
 ```
 
-#### Why separate from the webcam plugin?
+Why separate from the webcam plugin?
 
-- The webcam plugin is responsible for media capture and a playable `<video>`
-- Pumping frames and UI display are reusable concerns that multiple detection plugins can share
+- The webcam plugin owns media capture; pumping frames and showing UI are cross‑cutting concerns shared by multiple detection plugins.
 
-#### Browser API and linting
+## Core vs Plugin Responsibilities
 
-- Guard browser globals: `globalThis.createImageBitmap`, `globalThis.OffscreenCanvas`
-- Cancel rVFC via `video.cancelVideoFrameCallback(id)`, not a global
-- Use `globalThis.requestAnimationFrame`/`globalThis.cancelAnimationFrame` with fallbacks when needed
+This section clarifies where key behaviors belong.
+
+- Axis transform (coordinate conventions)
+  - Responsibility: detection plugin
+  - Core defines a canonical world frame used across the ecosystem:
+    - Right‑handed, Y‑up, camera looks down -Z (Three.js‑friendly)
+    - 4×4 matrices are column‑major Float32Array(16), units in meters
+  - Detection plugins must emit marker transforms in this canonical frame (or internally convert from their native coordinates). Renderer plugins should not fix coordinate handedness—just apply the matrix.
+
+- Projection matrix (intrinsics)
+  - Responsibility: detection plugin emits; renderer plugin listens
+  - Event: ar:cameraProjectionChanged
+    - payload: { projectionMatrix: Float32Array(16), width: number, height: number, near?: number, far?: number, timestamp?: number }
+  - Core provides the event bus; defaultProfilePlugin may seed a fallback projection, but the detection plugin should publish accurate intrinsics when available.
+
+- Marker events
+  - Emitted by detection plugins:
+    - ar:markerFound { markerId: string|number, matrix: Float32Array(16), timestamp?: number }
+    - ar:markerUpdated { markerId: string|number, matrix: Float32Array(16), timestamp?: number }
+    - ar:markerLost { markerId: string|number, timestamp?: number }
+
+- Example UI toggles (e.g., show/hide video, axis helpers)
+  - Responsibility: examples (recommended)
+  - Plugins may expose options or simple debug hooks, but UI is not part of core.
+
+- Rendering
+  - Responsibility: renderer plugins (e.g., arjs-plugin-threejs)
+  - Renderer plugins attach a canvas, render a scene, and consume marker/projection events.
+
+## TypeScript Definitions
+
+AR.js-core ships TypeScript declaration files (.d.ts). Editors will pick them up automatically.
+
+- Importing types in TS:
+
+```ts
+import type { Engine, PluginManager, CaptureSystem } from 'ar.js-core';
+
+import type {
+  COMPONENTS,
+  RESOURCES,
+  EVENTS,
+  SOURCE_TYPES,
+  CAPTURE_STATES,
+  DEVICE_PROFILES,
+  QUALITY_TIERS,
+} from 'ar.js-core';
+```
+
+- Key exported types (names may vary by file):
+  - Engine, PluginManager, EventBus
+  - Components/Resources registries
+  - System APIs like CaptureSystem and FramePumpSystem
+  - Enums/consts: SOURCE_TYPES, CAPTURE_STATES, QUALITY_TIERS, etc.
+
+If your toolchain requires an explicit types path, ensure your resolver honors the package’s types entry. No additional configuration is typically necessary.
 
 ## Features
 
-- Core ECS: Entity-Component-System with queries and resources
-- Event Bus: Lightweight pub/sub for decoupled communication
-- Plugin System: Modular plugins for capture, tracking, and more
-- Capture System: Unified interface for webcam, video, and image sources
-- Profile Policies: Automatic device detection and performance tuning
+- Core ECS with queries and resources
+- Event Bus for decoupled communication
+- Plugin system for capture, detection, and more
+- Capture System for webcam, video, and image sources
+- Profile policies for device capability tuning
 
-## Distribution and imports
+## Distribution and Imports
 
-AR.js Core is distributed as both ESM and CommonJS modules:
+AR.js-core ships ESM and CJS bundles:
 
-- **ESM (recommended)**: `dist/arjs-core.mjs` - Use with modern bundlers and browsers
-- **CommonJS**: `dist/arjs-core.js` - Use with Node.js or older bundlers
+- ESM (recommended): dist/arjs-core.mjs
+- CJS: dist/arjs-core.js
 
-### Import examples
+Examples:
 
-**ESM (Browser/Vite/Webpack 5+):**
-
-```javascript
+```js
+// ESM
 import { Engine, CaptureSystem, webcamPlugin } from 'ar.js-core';
-```
 
-**CommonJS (Node.js):**
-
-```javascript
+// CJS
 const { Engine, CaptureSystem, webcamPlugin } = require('ar.js-core');
+
+// Direct (local dev only)
+import { Engine } from './node_modules/ar.js-core/dist/arjs-core.mjs';
 ```
 
-**Direct script tag (not recommended for production):**
-
-```html
-<script type="module">
-  import { Engine } from './node_modules/ar.js-core/dist/arjs-core.mjs';
-</script>
-```
-
-### Build from source
+Build from source:
 
 ```bash
 npm run build:vite
 ```
 
-This builds both `dist/arjs-core.mjs` (ESM) and `dist/arjs-core.js` (CommonJS).
-
-**Note:** Webpack scripts remain for legacy/dev workflows; Vite handles the library bundles.
-
-## Documentation
-
-- ECS Architecture Guide (docs/ECS_ARCHITECTURE.md)
-- Plugins Guide (plugins/README.md) — Plugin contract, lifecycle, events, and device profile migration (QUALITY_TIERS)
-- Examples Index (examples/index.html)
-
 ## Running Examples
 
-You can use either webpack (existing) or Vite (new) during development.
+You can use webpack (legacy) or Vite (recommended) during development.
 
-**Webpack:**
+Webpack:
 
 ```bash
 npm install
 npm run dev
-# or watch:
+# or
 npm run dev:watch
 ```
 
-**Vite:**
+Vite:
 
 ```bash
 npm install
 npm run dev:vite
-# Opens the Examples index page in your browser
-
-# Build ES module library:
 npm run build:vite
-
-# Preview build:
 npm run serve:vite
 ```
 
-**Examples:**
+- Examples index: examples/index.html
+- Minimal ECS example: examples/minimal/index.html
 
-- Examples Index: examples/index.html (Vite: http://localhost:5173/examples/index.html)
-- Minimal Example: examples/minimal/index.html (Vite: http://localhost:5173/examples/minimal/index.html)
-- Image Source Example: examples/basic-ecs/image-example.html (Vite: http://localhost:5173/examples/basic-ecs/image-example.html)
+If the camera doesn’t start, click to allow autoplay. On Safari, prefer HTTPS in dev.
 
-If the camera doesn’t start automatically, click or tap once to allow autoplay. For Safari or stricter policies, consider enabling HTTPS in `vite.config.js` (see comments in the file).
+## Troubleshooting (Common)
 
-## Browser API and linting
+- Worker/assets 404 with vendor ESMs: co‑locate the ESM with its assets/ folder or import from CDN.
+- No detections: start FramePumpSystem after capture; verify engine:update ticks.
+- Video not visible: attach the webcam <video> to a visible container and override offscreen styles.
+- Autoplay/permissions: set video.muted = true; add playsinline; use HTTPS on mobile.
 
-- Guard browser globals: `globalThis.createImageBitmap`, `globalThis.OffscreenCanvas`
-- Cancel rVFC via `video.cancelVideoFrameCallback(id)`, not a global
-- Use `globalThis.requestAnimationFrame`/`globalThis.cancelAnimationFrame` with fallbacks when needed
+## Migration to ECS‑Only Core
 
-## Troubleshooting
-
-Use this checklist when the example or your integration doesn’t behave as expected.
-
-### Network checklist (open DevTools → Network)
-
-- Worker asset 200 OK:
-  - examples/vite-artoolkit/vendor/arjs-plugin-artoolkit/assets/worker-\*.js
-  - If 404: copy the plugin’s dist assets next to the ESM, or import from CDN:
-    ```js
-    const mod = await import(
-      'https://cdn.jsdelivr.net/gh/AR-js-org/arjs-plugin-artoolkit@main/dist/arjs-plugin-artoolkit.esm.js'
-    );
-    ```
-- ARToolKit chunk 200 OK:
-  - examples/vite-artoolkit/vendor/arjs-plugin-artoolkit/assets/ARToolkit-\*.js
-- Camera parameters 200 OK:
-  - /examples/vite-artoolkit/data/camera_para.dat
-- Pattern file 200 OK:
-  - /examples/vite-artoolkit/data/patt.hiro
-
-### Worker not ready (Load Marker stays disabled)
-
-- Ensure you register event listeners before enabling the plugin:
-  ```js
-  engine.eventBus.on('ar:workerReady', onReady);
-  await artoolkit.init(ctx);
-  await artoolkit.enable();
-  ```
-- Serve via HTTP/HTTPS (not file://).
-- If using a local vendor ESM, ensure the ESM and its assets/ folder live together:
-  ```
-  vendor/arjs-plugin-artoolkit/
-  ├─ arjs-plugin-artoolkit.esm.js
-  └─ assets/
-     ├─ worker-XXXX.js
-     └─ ARToolkit-XXXX.js
-  ```
-
-### No detections (no markerFound/Updated/Lost)
-
-- Start the frame pump after webcam capture:
-  ```js
-  await CaptureSystem.initialize({ sourceType: SOURCE_TYPES.WEBCAM }, ctx);
-  FramePumpSystem.start(ctx); // emits engine:update with ImageBitmap
-  ```
-- Confirm engine:update is firing and ar:getMarker logs appear.
-- If createImageBitmap is unavailable, the pump falls back to a canvas path automatically.
-
-### Video not visible
-
-- Attach the webcam <video> to a visible container and override offscreen styles:
-  ```js
-  const { element: videoEl } = CaptureSystem.getFrameSource(ctx);
-  Object.assign(videoEl.style, {
-    position: 'relative',
-    zIndex: 1,
-    width: '100%',
-    height: 'auto',
-    display: 'block',
-  });
-  document.getElementById('viewport').appendChild(videoEl);
-  ```
-
-### 404s for assets (worker/ARToolKit chunks)
-
-- If importing the plugin ESM from a local vendor path, copy the entire dist contents:
-  - arjs-plugin-artoolkit.esm.js
-  - assets/worker-\*.js
-  - assets/ARToolKit-\*.js
-- Or import the plugin from CDN to avoid local asset wiring:
-  ```js
-  const mod = await import(
-    'https://cdn.jsdelivr.net/gh/AR-js-org/arjs-plugin-artoolkit@main/dist/arjs-plugin-artoolkit.esm.js'
-  );
-  ```
-
-### Autoplay/permissions (mobile)
-
-- Ensure the video element is muted and has playsinline for iOS:
-  ```js
-  videoEl.muted = true;
-  videoEl.setAttribute('playsinline', '');
-  ```
-- Use HTTPS on mobile browsers to access the camera.
-
-### Browser API and linting
-
-- Guard browser globals:
-  - `globalThis.createImageBitmap`, `globalThis.OffscreenCanvas`
-- Cancel rVFC via `video.cancelVideoFrameCallback(id)`, not a global.
-- Use `globalThis.requestAnimationFrame`/`globalThis.cancelAnimationFrame` with fallbacks when needed.
-
-### CORS
-
-- If serving from a custom dev server, ensure it serves:
-  - the vendor ESM and its assets folder
-  - example data files under /examples/...
-- Avoid cross-origin requests without proper CORS headers.
-
-### Performance tips
-
-- Prefer `HTMLVideoElement.requestVideoFrameCallback` when available; it syncs to decoder frames.
-- If needed, throttle frame emission in the pump to reduce CPU usage (e.g., skip frames).
-
-## Migration to ECS-only Core
-
-AR.js Core has been refactored to be **ECS-only** as the foundation for AR.js-next. The legacy Source, Profile, Session, and SessionDebugUI classes have been **removed from the core library**.
-
-### What this means
-
-- **ECS and Plugin Architecture**: The core now focuses exclusively on the modern Entity-Component-System architecture with a clean plugin system.
-- **Legacy API Removed**: The old Source, Profile, Session, and SessionDebugUI classes are no longer exported from `ar.js-core`.
-- **Adapter Package (Future)**: If you need legacy API compatibility, a separate adapter package may be provided in the future that wraps the ECS core with the old API.
-- **Three.js Integration**: Three.js-specific functionality will be developed in a separate repository: **arjs-plugin-threejs**.
-
-### Importing from the bundled library
-
-**ES Modules (ESM):**
-
-```javascript
-import { Engine, CaptureSystem, SOURCE_TYPES, webcamPlugin } from 'ar.js-core';
-// or with explicit file reference:
-import { Engine } from '../../dist/arjs-core.mjs';
-```
-
-**CommonJS (CJS):**
-
-```javascript
-const { Engine, CaptureSystem, SOURCE_TYPES } = require('ar.js-core');
-```
-
-The package.json `exports` field maps to:
-
-- ESM: `dist/arjs-core.mjs` (via `import` or `module`)
-- CJS: `dist/arjs-core.js` (via `require` or `main`)
-
-See the examples in the `examples/` directory for complete usage patterns with the ECS architecture.
+- Legacy API (Source/Profile/Session/SessionDebugUI) removed from core.
+- Core focuses on ECS + plugins; renderer integrations live externally (e.g., arjs-plugin-threejs).
+- Import from the bundled library (ESM .mjs or CJS .js) as shown above.

@@ -42,7 +42,6 @@
     "@vitest/ui": "^4.0.7",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^9.1.2",
-    "gl-matrix": "^3.4.4",
     "husky": "^9.1.7",
     "lint-staged": "15.4.3",
     "prettier": "^3.4.2",
