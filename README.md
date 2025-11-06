@@ -296,3 +296,37 @@ Use this checklist when the example or your integration doesn’t behave as expe
 
 - Prefer `HTMLVideoElement.requestVideoFrameCallback` when available; it syncs to decoder frames.
 - If needed, throttle frame emission in the pump to reduce CPU usage (e.g., skip frames).
+
+## Migration to ECS-only Core
+
+AR.js Core has been refactored to be **ECS-only** as the foundation for AR.js-next. The legacy Source, Profile, Session, and SessionDebugUI classes have been **removed from the core library**.
+
+### What this means
+
+- **ECS and Plugin Architecture**: The core now focuses exclusively on the modern Entity-Component-System architecture with a clean plugin system.
+- **Legacy API Removed**: The old Source, Profile, Session, and SessionDebugUI classes are no longer exported from `ar.js-core`.
+- **Adapter Package (Future)**: If you need legacy API compatibility, a separate adapter package may be provided in the future that wraps the ECS core with the old API.
+- **Three.js Integration**: Three.js-specific functionality will be developed in a separate repository: **arjs-plugin-threejs**.
+
+### Importing from the bundled library
+
+**ES Modules (ESM):**
+
+```javascript
+import { Engine, CaptureSystem, SOURCE_TYPES, webcamPlugin } from 'ar.js-core';
+// or with explicit file reference:
+import { Engine } from '../../dist/arjs-core.mjs';
+```
+
+**CommonJS (CJS):**
+
+```javascript
+const { Engine, CaptureSystem, SOURCE_TYPES } = require('ar.js-core');
+```
+
+The package.json `exports` field maps to:
+
+- ESM: `dist/arjs-core.mjs` (via `import` or `module`)
+- CJS: `dist/arjs-core.js` (via `require` or `main`)
+
+See the examples in the `examples/` directory for complete usage patterns with the ECS architecture.
