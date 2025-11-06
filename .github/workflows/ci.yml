@@ -9,7 +9,7 @@ on:
       - 'examples/**'
       - 'tests/**'
       - 'package.json'
-      - 'vite.config.js'
+      - 'vite.config.mjs'
       - 'vitest.config.js'
       - '.github/workflows/**'
   pull_request:
@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Primary job: format/lint, webpack build, then tests with coverage.
+  # Single job: format/lint, webpack build, Vite build, then tests with coverage.
   build-and-test:
     runs-on: ubuntu-24.04
     steps:
@@ -47,10 +47,11 @@ jobs:
       - name: ESLint
         run: npm run lint
 
-      # Use the webpack build for CI stability (dist via webpack)
+      # Webpack build (legacy/dev parity)
       - name: Build (webpack)
         run: npm run build
 
+      # Vite library build (ESM + CJS)
       - name: Build (Vite)
         run: npm run build:vite
 
@@ -66,41 +67,3 @@ jobs:
           name: coverage
           path: coverage
           if-no-files-found: ignore
-
-  # Secondary job: attempt Vite build with mitigations; doesn't fail the PR if it breaks.
-  vite-build-linux:
-    runs-on: ubuntu-24.04
-    continue-on-error: true
-    needs: build-and-test
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js (from .nvmrc)
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-          cache: npm
-
-      - name: Install dependencies
-        run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
-          fi
-
-      - name: Diagnostics (platform and rollup)
-        run: |
-          node -e "console.log('platform:', process.platform, 'arch:', process.arch, 'node:', process.version)"
-          npm ls rollup @rollup/rollup-linux-x64-gnu vite || true
-
-      # Workaround: ensure Linux native binary is present. Harmless if already resolved.
-      - name: Ensure rollup native linux package
-        run: npm i -D @rollup/rollup-linux-x64-gnu@^4 || true
-
-      - name: Vite build (library)
-        run: npm run build:vite
-        env:
-          # Ask rollup to use JS fallback if native optional dep is still missing
-          ROLLUP_SKIP_NODEJS_NATIVE: '1'
