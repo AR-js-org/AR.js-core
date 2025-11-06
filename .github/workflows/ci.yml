@@ -51,6 +51,9 @@ jobs:
       - name: Build (webpack)
         run: npm run build
 
+      - name: Build (Vite)
+        run: npm run build:vite
+
       - name: Run tests (with coverage)
         run: npm run test:coverage
         env:
