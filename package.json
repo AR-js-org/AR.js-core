@@ -21,6 +21,8 @@
     "build-types": "tsc",
     "dev:vite": "vite",
     "build:vite": "vite build --config vite.config.mjs",
+    "build": "npm run build-types && npm run build:vite",
+    "prepack": "npm run build",
     "serve:vite": "vite preview",
     "test": "vitest",
     "test:watch": "vitest --watch",
@@ -57,5 +59,13 @@
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix --cache"
     ]
-  }
+  },
+  "files": [
+    "dist",
+    "src",
+    "plugins",
+    "types",
+    "README.md",
+    "LICENSE"
+  ]
 }
