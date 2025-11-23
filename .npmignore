@@ -1,0 +1,16 @@
+examples/
+tests/
+docs/
+.github/
+.husky/
+*.test.js
+*.config.js
+*.config.mjs
+.editorconfig
+.gitattributes
+.lintstagedignore
+.nvmrc
+.prettierignore
+.prettierrc.json
+eslint.config.mjs
+vitest.config.js

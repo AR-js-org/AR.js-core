@@ -205,3 +205,27 @@ If the camera doesn’t start, click to allow autoplay. On Safari, prefer HTTPS 
 - Legacy API (Source/Profile/Session/SessionDebugUI) removed from core.
 - Core focuses on ECS + plugins; renderer integrations live externally (e.g., arjs-plugin-threejs).
 - Import from the bundled library (ESM .mjs or CJS .js) as shown above.
+
+## Development
+
+### Building
+
+The `dist` folder contains the built library files and is automatically generated.
+
+**To build manually:**
+
+```bash
+npm run build
+```
+
+This will:
+
+1. Generate TypeScript type definitions in `types/`
+2. Bundle the library files to `dist/`
+
+**Note:** The `dist` folder is automatically built when:
+
+- Running `npm pack` (via the `prepack` script)
+- Publishing to npm with `npm publish`
+
+You don't need to commit the `dist` folder to git - it will be generated fresh during the publish process.
