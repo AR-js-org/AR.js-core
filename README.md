@@ -2,6 +2,28 @@
 
 A renderer-agnostic AR library built on a modern Entity-Component-System (ECS) architecture with a plugin system.
 
+## Installing
+
+Install from npm (recommended):
+
+```bash
+// when it will be available!!
+npm install ar.js-core
+```
+
+From GitHub (source install):
+
+```bash
+npm install github:AR-js-org/AR.js-core#feature-npm-package-fix
+```
+
+Notes:
+
+- GitHub installs clone the repository and execute the `prepare` script, which builds `dist/` on the fly.
+- Ensure devDependencies are installed; avoid `npm install --production` when consuming from GitHub.
+- Prefer the npm registry release for reproducible installs.
+- The `dist/` directory is generated during installs and is not committed to the repository.
+
 ## ECS-Only Core
 
 As of 0.2.x, AR.js-core is ECS-only. Legacy classes (Source, Profile, Session, SessionDebugUI) have been removed to focus on:
@@ -160,11 +182,24 @@ const { Engine, CaptureSystem, webcamPlugin } = require('ar.js-core');
 import { Engine } from './node_modules/ar.js-core/dist/arjs-core.mjs';
 ```
 
-Build from source:
+## Development
+
+### Building
+
+Run a full build:
 
 ```bash
-npm run build:vite
+npm run build
 ```
+
+This generates TypeScript declarations in `types/` and bundles in `dist/`.
+
+The build also runs automatically when you:
+
+- package or publish (`npm pack`, `npm publish`) via the `prepack` script
+- install from GitHub (source checkout) via the `prepare` script
+
+You do not need to commit `dist/`; it is recreated for each build or publish cycle.
 
 ## Running Examples
 
