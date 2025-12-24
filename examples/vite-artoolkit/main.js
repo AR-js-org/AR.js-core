@@ -84,7 +84,7 @@ async function bootstrap() {
   engine.pluginManager.register(webcamPlugin.id, webcamPlugin);
 
   // Load ArtoolkitPlugin ESM (local vendor or CDN)
-  const mod = await import('./vendor/arjs-plugin-artoolkit/arjs-plugin-artoolkit.esm.js');
+  const mod = await import('./vendor/arjs-plugin-artoolkit/arjs-plugin-artoolkit.es.js');
   const ArtoolkitPlugin = mod.ArtoolkitPlugin || mod.default;
 
   // Set up UI listeners BEFORE enable to avoid missing early 'ready'
