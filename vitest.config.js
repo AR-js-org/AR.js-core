@@ -10,10 +10,8 @@ export default defineConfig({
     clearMocks: true,
     testTimeout: 10000,
     // Run in a single thread to avoid timer/env leakage between workers
-    poolOptions: {
-      threads: {
-        singleThread: true,
-      },
+    threads: {
+      singleThread: true,
     },
   },
 });
