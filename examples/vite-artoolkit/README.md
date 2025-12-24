@@ -45,9 +45,8 @@ const videoEl = frameSource.element;
 - Alternatively, import from the CDN:
 
 ```js
-const mod = await import(
-  'https://cdn.jsdelivr.net/gh/AR-js-org/arjs-plugin-artoolkit@main/dist/arjs-plugin-artoolkit.esm.js'
-);
+const mod =
+  await import('https://cdn.jsdelivr.net/gh/AR-js-org/arjs-plugin-artoolkit@main/dist/arjs-plugin-artoolkit.esm.js');
 ```
 
 ## Troubleshooting
