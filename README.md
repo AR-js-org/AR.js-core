@@ -7,22 +7,22 @@ A renderer-agnostic AR library built on a modern Entity-Component-System (ECS) a
 Install from npm (recommended):
 
 ```bash
-// when it will be available!!
-npm install ar.js-core
+# when it will be available
+npm install @ar-js-org/ar.js-next
 ```
 
 From GitHub (source install):
 
 ```bash
-npm install github:AR-js-org/AR.js-core#feature-npm-package-fix
+npm install github:AR-js-org/AR.js-core#dev-arjs-next
 ```
 
 Notes:
 
 - GitHub installs clone the repository and execute the `prepare` script, which builds `dist/` on the fly.
 - Ensure devDependencies are installed; avoid `npm install --production` when consuming from GitHub.
-- Prefer the npm registry release for reproducible installs.
-- The `dist/` directory is generated during installs and is not committed to the repository.
+- Prefer the npm registry release for reproducible installations.
+- The `dist/` directory is generated during installations and is not committed to the repository.
 
 ## ECS-Only Core
 
@@ -48,7 +48,7 @@ import {
   SOURCE_TYPES,
   defaultProfilePlugin,
   webcamPlugin,
-} from 'ar.js-core';
+} from '@ar-js-org/ar.js-next';
 
 const engine = new Engine();
 const ctx = engine.getContext();
@@ -75,7 +75,7 @@ Detection plugins (e.g., arjs-plugin-artoolkit) consume frames as ImageBitmap du
 Basic flow:
 
 ```js
-import { CaptureSystem, SOURCE_TYPES, FramePumpSystem } from 'ar.js-core';
+import { CaptureSystem, SOURCE_TYPES, FramePumpSystem } from '@ar-js-org/ar.js-next';
 
 // 1) Start capture
 await CaptureSystem.initialize({ sourceType: SOURCE_TYPES.WEBCAM }, ctx);
@@ -133,7 +133,7 @@ AR.js-core ships TypeScript declaration files (.d.ts). Editors will pick them up
 - Importing types in TS:
 
 ```ts
-import type { Engine, PluginManager, CaptureSystem } from 'ar.js-core';
+import type { Engine, PluginManager, CaptureSystem } from '@ar-js-org/ar.js-next';
 
 import type {
   COMPONENTS,
@@ -143,7 +143,7 @@ import type {
   CAPTURE_STATES,
   DEVICE_PROFILES,
   QUALITY_TIERS,
-} from 'ar.js-core';
+} from '@ar-js-org/ar.js-next';
 ```
 
 - Key exported types (names may vary by file):
@@ -173,13 +173,13 @@ Examples:
 
 ```js
 // ESM
-import { Engine, CaptureSystem, webcamPlugin } from 'ar.js-core';
+import { Engine, CaptureSystem, webcamPlugin } from '@ar-js-org/ar.js-next';
 
 // CJS
-const { Engine, CaptureSystem, webcamPlugin } = require('ar.js-core');
+const { Engine, CaptureSystem, webcamPlugin } = require('@ar-js-org/ar.js-next');
 
 // Direct (local dev only)
-import { Engine } from './node_modules/ar.js-core/dist/arjs-core.mjs';
+import { Engine } from './node_modules/@ar-js-org/ar.js-next/dist/arjs-core.mjs';
 ```
 
 ## Development
@@ -203,16 +203,7 @@ You do not need to commit `dist/`; it is recreated for each build or publish cyc
 
 ## Running Examples
 
-You can use webpack (legacy) or Vite (recommended) during development.
-
-Webpack:
-
-```bash
-npm install
-npm run dev
-# or
-npm run dev:watch
-```
+You can use Vite (recommended) during development.
 
 Vite:
 
@@ -232,7 +223,7 @@ If the camera doesn’t start, click to allow autoplay. On Safari, prefer HTTPS 
 
 - Worker/assets 404 with vendor ESMs: co‑locate the ESM with its assets/ folder or import from CDN.
 - No detections: start FramePumpSystem after capture; verify engine:update ticks.
-- Video not visible: attach the webcam <video> to a visible container and override offscreen styles.
+- Video is not visible: attach the webcam <video> to a visible container and override offscreen styles.
 - Autoplay/permissions: set video.muted = true; add playsinline; use HTTPS on mobile.
 
 ## Migration to ECS‑Only Core
@@ -240,27 +231,3 @@ If the camera doesn’t start, click to allow autoplay. On Safari, prefer HTTPS 
 - Legacy API (Source/Profile/Session/SessionDebugUI) removed from core.
 - Core focuses on ECS + plugins; renderer integrations live externally (e.g., arjs-plugin-threejs).
 - Import from the bundled library (ESM .mjs or CJS .js) as shown above.
-
-## Development
-
-### Building
-
-The `dist` folder contains the built library files and is automatically generated.
-
-**To build manually:**
-
-```bash
-npm run build
-```
-
-This will:
-
-1. Generate TypeScript type definitions in `types/`
-2. Bundle the library files to `dist/`
-
-**Note:** The `dist` folder is automatically built when:
-
-- Running `npm pack` (via the `prepack` script)
-- Publishing to npm with `npm publish`
-
-You don't need to commit the `dist` folder to git - it will be generated fresh during the publish process.
