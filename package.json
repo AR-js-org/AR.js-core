@@ -1,18 +1,37 @@
 {
-  "name": "ar.js-core",
-  "version": "0.1.0",
+  "name": "@ar-js-org/ar.js-next",
+  "version": "0.2.0",
   "description": "core library of AR.js",
-  "main": "dist/ar-core.js",
+  "main": "dist/arjs-core.js",
+  "module": "dist/arjs-core.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/arjs-core.mjs",
+      "require": "./dist/arjs-core.js",
+      "default": "./dist/arjs-core.mjs"
+    }
+  },
+  "types": "types/src/index.d.ts",
+  "sideEffects": false,
   "scripts": {
+    "build": "npm run build:vite && npm run build:types",
+    "build:types": "tsc",
+    "build:vite": "vite build",
+    "dev:vite": "vite",
     "format-check": "prettier --check .",
     "format": "prettier --write .",
-    "dev": "webpack --mode development --progress --color --watch",
-    "build": "webpack --mode production",
-    "build-types": "tsc"
+    "lint": "eslint . --ext .js",
+    "prepare": "husky install && npm run build",
+    "prepack": "npm run build",
+    "prepublishOnly": "npm run build",
+    "serve:vite": "vite preview",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest run --coverage"
   },
   "repository": {
     "type": "git",
-    "url": "https//:www.github.com/AR-js-org/AR.js-core.git"
+    "url": "https://www.github.com/AR-js-org/AR.js-core.git"
   },
   "keywords": [
     "AR.js",
@@ -21,17 +40,32 @@
   ],
   "author": "@kalwalt",
   "license": "MIT",
-  "dependencies": {
-    "@ar-js-org/artoolkit5-js": "^0.3.1",
-    "@babel/core": "^7.26.0",
-    "@babel/plugin-transform-runtime": "^7.25.9",
-    "@babel/preset-env": "^7.26.0",
-    "@babel/runtime": "^7.26.0",
-    "babel-loader": "^9.2.1",
-    "gl-matrix": "^3.4.3",
-    "prettier": "^3.4.2",
-    "typescript": "^5.7.2",
-    "webpack": "^5.97.1",
-    "webpack-cli": "^5.1.4"
-  }
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.16",
+    "@vitest/ui": "^4.0.16",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "15.4.3",
+    "prettier": "^3.7.4",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0",
+    "vitest": "^4.0.16"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,css,md,json}": [
+      "prettier --write"
+    ],
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix --cache"
+    ]
+  },
+  "files": [
+    "dist",
+    "src",
+    "plugins",
+    "types",
+    "README.md",
+    "LICENSE"
+  ]
 }
