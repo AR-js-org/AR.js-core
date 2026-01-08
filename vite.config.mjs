@@ -4,6 +4,13 @@ import { defineConfig } from 'vite';
 // - dist/arjs-core.mjs (ESM)  -> package.json "module" and "exports.import"
 // - dist/arjs-core.js (CJS)   -> package.json "main" and "exports.require"
 export default defineConfig({
+  server: {
+    // For local camera access, HTTP on localhost generally works in Chrome.
+    // If you need HTTPS (Safari/stricter policies), enable and provide certs:
+    // https: true,
+    port: 5173,
+    open: '/examples/index.html',
+  },
   build: {
     sourcemap: true,
     target: 'esnext',
@@ -19,7 +26,6 @@ export default defineConfig({
           entryFileNames: 'arjs-core.mjs',
           exports: 'named',
           dir: 'dist',
-          sourcemap: true,
           interop: 'auto',
         },
         {
@@ -27,7 +33,6 @@ export default defineConfig({
           entryFileNames: 'arjs-core.js',
           exports: 'named',
           dir: 'dist',
-          sourcemap: true,
           interop: 'auto',
         },
       ],

@@ -1,4 +1,4 @@
-# AR.js-core
+# AR.js-next
 
 A renderer-agnostic AR library built on a modern Entity-Component-System (ECS) architecture with a plugin system.
 
@@ -95,7 +95,7 @@ Why separate from the webcam plugin?
 
 - The webcam plugin owns media capture; pumping frames and showing UI are cross‑cutting concerns shared by multiple detection plugins.
 
-## Core vs Plugin Responsibilities
+## Core (AR.js-next) vs Plugin Responsibilities
 
 This section clarifies where key behaviors belong.
 
@@ -128,7 +128,7 @@ This section clarifies where key behaviors belong.
 
 ## TypeScript Definitions
 
-AR.js-core ships TypeScript declaration files (.d.ts). Editors will pick them up automatically.
+AR.js-next ships TypeScript declaration files (.d.ts). Editors will pick them up automatically.
 
 - Importing types in TS:
 
@@ -164,7 +164,7 @@ If your toolchain requires an explicit types path, ensure your resolver honors t
 
 ## Distribution and Imports
 
-AR.js-core ships ESM and CJS bundles:
+AR.js-next ships ESM and CJS bundles:
 
 - ESM (recommended): dist/arjs-core.mjs
 - CJS: dist/arjs-core.js
