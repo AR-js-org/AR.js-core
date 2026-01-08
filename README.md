@@ -7,7 +7,6 @@ A renderer-agnostic AR library built on a modern Entity-Component-System (ECS) a
 Install from npm (recommended):
 
 ```bash
-# when it will be available
 npm install @ar-js-org/ar.js-next
 ```
 
@@ -218,6 +217,10 @@ npm run serve:vite
 - Minimal ECS example: examples/minimal/index.html
 
 If the camera doesn’t start, click to allow autoplay. On Safari, prefer HTTPS in dev.
+
+## Contributing
+
+We welcome contributions to AR.js-next! If you're interested in helping, a great place to start is by reviewing our open issues and pull requests.
 
 ## Troubleshooting (Common)
 
