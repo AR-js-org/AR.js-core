@@ -1,0 +1,90 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: |
+          npm run build
+          npm run build:types
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            dist/
+            types/
+            package.json
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to create GitHub releases
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Determine release tag
+        id: tag
+        run: |
+          # GITHUB_REF for tag events is refs/tags/<tag>
+          ref_name=${GITHUB_REF##*/}
+          echo "tag=$ref_name" >> $GITHUB_OUTPUT
+
+      - name: Prepare release assets
+        run: |
+          if [ -d types ]; then
+            zip -r types.zip types
+          fi
+          if [ -d dist ]; then
+            zip -r dist.zip dist
+          fi
+
+      - name: Create or Update GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${{ steps.tag.outputs.tag }}
+          ASSETS=""
+          if [ -f dist.zip ]; then
+            ASSETS="$ASSETS dist.zip"
+          fi
+          if [ -f types.zip ]; then
+            ASSETS="$ASSETS types.zip"
+          fi
+
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG already exists. Uploading assets..."
+            gh release upload "$TAG" $ASSETS --clobber
+          else
+            echo "Creating release $TAG..."
+            gh release create "$TAG" $ASSETS --title "$TAG" --notes "Automated release with built assets"
+          fi

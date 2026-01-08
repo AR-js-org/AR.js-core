@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: ['**'] # run on pushes to all branches
+    paths:
+      - 'src/**'
+      - 'plugins/**'
+      - 'examples/**'
+      - 'tests/**'
+      - 'package.json'
+      - 'vite.config.mjs'
+      - 'vitest.config.js'
+      - '.github/workflows/**'
+  pull_request:
+    branches: ['**'] # run on PRs against any branch
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Single job: format/lint, webpack build, Vite build, then tests with coverage.
+  build-and-test:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js (from .nvmrc)
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Prettier check
+        run: npm run format-check
+
+      - name: ESLint
+        run: npm run lint
+
+      # Vite library build (ESM + CJS)
+      - name: Build (Vite)
+        run: npm run build:vite
+
+      - name: Run tests (with coverage)
+        run: npm run test:coverage
+        env:
+          CI: true
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+          if-no-files-found: ignore
