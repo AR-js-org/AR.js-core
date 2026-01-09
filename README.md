@@ -10,12 +10,6 @@ Install from npm (recommended):
 npm install @ar-js-org/ar.js-next
 ```
 
-From GitHub (source install):
-
-```bash
-npm install github:AR-js-org/AR.js-core#dev-arjs-next
-```
-
 Notes:
 
 - GitHub installs clone the repository and execute the `prepare` script, which builds `dist/` on the fly.
@@ -25,7 +19,7 @@ Notes:
 
 ## ECS-Only Core
 
-As of 0.2.x, AR.js-core is ECS-only. Legacy classes (Source, Profile, Session, SessionDebugUI) have been removed to focus on:
+As of 0.2.x, AR.js-next is ECS-only. Legacy classes (Source, Profile, Session, SessionDebugUI) have been removed to focus on:
 
 - Modular design with a clean plugin system
 - Data‑oriented ECS for efficient processing
@@ -220,7 +214,7 @@ If the camera doesn’t start, click to allow autoplay. On Safari, prefer HTTPS 
 
 ## Contributing
 
-We welcome contributions to AR.js-next! If you're interested in helping, a great place to start is by reviewing our open issues and pull requests.
+We welcome all contributions! Before you begin, please review our **[CONTRIBUTING.md](https://github.com/AR-js-org/AR.js-core/blob/main/CONTRIBUTING.md)** for guidelines and our **[CODE_OF_CONDUCT.md](https://github.com/AR-js-org/AR.js-core/blob/main/CODE_OF_CONDUCT.md)**. A great way to get started is by exploring open issues and pull requests.
 
 ## Troubleshooting (Common)
 
@@ -231,6 +225,6 @@ We welcome contributions to AR.js-next! If you're interested in helping, a great
 
 ## Migration to ECS‑Only Core
 
-- Legacy API (Source/Profile/Session/SessionDebugUI) removed from core.
+- Legacy API (Source/Profile/Session/SessionDebugUI) removed from the core.
 - Core focuses on ECS + plugins; renderer integrations live externally (e.g., arjs-plugin-threejs).
 - Import from the bundled library (ESM .mjs or CJS .js) as shown above.
