@@ -1,8 +1,15 @@
 # AR.js-next
 
+[![npm version](https://badge.fury.io/js/%40ar-js-org%2Far.js-next.svg)](https://badge.fury.io/js/%40ar-js-org%2Far.js-next)
+[![CI](https://github.com/AR-js-org/AR.js-next/actions/workflows/ci.yml/badge.svg)](https://github.com/AR-js-org/AR.js-next/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![GitHub issues](https://img.shields.io/github/issues/AR-js-org/AR.js-next.svg)](https://github.com/AR-js-org/AR.js-next/issues)
+[![GitHub forks](https://img.shields.io/github/forks/AR-js-org/AR.js-next.svg)](https://github.com/AR-js-org/AR.js-next/network/members)
+[![GitHub stars](https://img.shields.io/github/stars/AR-js-org/AR.js-next.svg)](https://github.com/AR-js-org/AR.js-next/stargazers)
+
 A renderer-agnostic AR library built on a modern Entity-Component-System (ECS) architecture with a plugin system.
 
-## Installing
+## 🚀 Installing
 
 Install from npm (recommended):
 
@@ -17,7 +24,7 @@ Notes:
 - Prefer the npm registry release for reproducible installations.
 - The `dist/` directory is generated during installations and is not committed to the repository.
 
-## ECS-Only Core
+## ✨ ECS-Only Core
 
 As of 0.2.x, AR.js-next is ECS-only. Legacy classes (Source, Profile, Session, SessionDebugUI) have been removed to focus on:
 
@@ -32,7 +39,7 @@ Renderer integrations live in external repositories:
 
 If you need the legacy API, use 0.1.x or migrate to the ECS architecture below.
 
-## Quick Start (ECS)
+## 🏁 Quick Start (ECS)
 
 ```js
 import {
@@ -61,7 +68,7 @@ await CaptureSystem.initialize(
 engine.start();
 ```
 
-## Frame Pump + Video Viewport
+## 🖼️ Frame Pump + Video Viewport
 
 Detection plugins (e.g., arjs-plugin-artoolkit) consume frames as ImageBitmap during engine:update. The webcam plugin provides a playing <video> but does not emit frames itself.
 
@@ -88,7 +95,7 @@ Why separate from the webcam plugin?
 
 - The webcam plugin owns media capture; pumping frames and showing UI are cross‑cutting concerns shared by multiple detection plugins.
 
-## Core (AR.js-next) vs Plugin Responsibilities
+## 🔧 Core (AR.js-next) vs Plugin Responsibilities
 
 This section clarifies where key behaviors belong.
 
@@ -119,7 +126,7 @@ This section clarifies where key behaviors belong.
   - Responsibility: renderer plugins (e.g., arjs-plugin-threejs)
   - Renderer plugins attach a canvas, render a scene, and consume marker/projection events.
 
-## TypeScript Definitions
+## 📝 TypeScript Definitions
 
 AR.js-next ships TypeScript declaration files (.d.ts). Editors will pick them up automatically.
 
@@ -147,7 +154,7 @@ import type {
 
 If your toolchain requires an explicit types path, ensure your resolver honors the package’s types entry. No additional configuration is typically necessary.
 
-## Features
+## ⭐ Features
 
 - Core ECS with queries and resources
 - Event Bus for decoupled communication
@@ -155,7 +162,7 @@ If your toolchain requires an explicit types path, ensure your resolver honors t
 - Capture System for webcam, video, and image sources
 - Profile policies for device capability tuning
 
-## Distribution and Imports
+## 📦 Distribution and Imports
 
 AR.js-next ships ESM and CJS bundles:
 
@@ -175,7 +182,7 @@ const { Engine, CaptureSystem, webcamPlugin } = require('@ar-js-org/ar.js-next')
 import { Engine } from './node_modules/@ar-js-org/ar.js-next/dist/arjs-core.mjs';
 ```
 
-## Development
+## 🛠️ Development
 
 ### Building
 
@@ -194,7 +201,7 @@ The build also runs automatically when you:
 
 You do not need to commit `dist/`; it is recreated for each build or publish cycle.
 
-## Running Examples
+## 🏃 Running Examples
 
 You can use Vite (recommended) during development.
 
@@ -212,18 +219,18 @@ npm run serve:vite
 
 If the camera doesn’t start, click to allow autoplay. On Safari, prefer HTTPS in dev.
 
-## Contributing
+## 🤝 Contributing
 
 We welcome all contributions! Before you begin, please review our **[CONTRIBUTING.md](https://github.com/AR-js-org/AR.js-core/blob/main/CONTRIBUTING.md)** for guidelines and our **[CODE_OF_CONDUCT.md](https://github.com/AR-js-org/AR.js-core/blob/main/CODE_OF_CONDUCT.md)**. A great way to get started is by exploring open issues and pull requests.
 
-## Troubleshooting (Common)
+## ❓ Troubleshooting (Common)
 
 - Worker/assets 404 with vendor ESMs: co‑locate the ESM with its assets/ folder or import from CDN.
 - No detections: start FramePumpSystem after capture; verify engine:update ticks.
 - Video is not visible: attach the webcam <video> to a visible container and override offscreen styles.
 - Autoplay/permissions: set video.muted = true; add playsinline; use HTTPS on mobile.
 
-## Migration to ECS‑Only Core
+## 🚚 Migration to ECS‑Only Core
 
 - Legacy API (Source/Profile/Session/SessionDebugUI) removed from the core.
 - Core focuses on ECS + plugins; renderer integrations live externally (e.g., arjs-plugin-threejs).
